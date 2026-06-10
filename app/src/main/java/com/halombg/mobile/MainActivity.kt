@@ -337,21 +337,33 @@ fun HeroSection(
                     tint = TextSecondary,
                     modifier = Modifier.size(20.dp)
                 )
-                TextField(
-                    value = searchQuery,
-                    onValueChange = onSearchChange,
-                    placeholder = { Text(stringResource(R.string.search_placeholder), fontSize = 14.sp) },
-                    modifier = Modifier.fillMaxSize(),
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                        disabledContainerColor = Color.Transparent,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        focusedTextColor = TextPrimary
-                    ),
-                    singleLine = true
-                )
+                
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Box(
+                    modifier = Modifier.weight(1f),
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    if (searchQuery.isEmpty()) {
+                        Text(
+                            text = stringResource(R.string.search_placeholder),
+                            color = TextTertiary,
+                            fontSize = 14.sp,
+                            maxLines = 1
+                        )
+                    }
+                    androidx.compose.foundation.text.BasicTextField(
+                        value = searchQuery,
+                        onValueChange = onSearchChange,
+                        textStyle = androidx.compose.ui.text.TextStyle(
+                            color = TextPrimary,
+                            fontSize = 14.sp
+                        ),
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        cursorBrush = androidx.compose.ui.graphics.SolidColor(PrimaryNavy)
+                    )
+                }
             }
         }
 
