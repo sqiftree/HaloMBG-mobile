@@ -3,6 +3,8 @@ package com.halombg.mobile
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import android.content.Intent
+import com.halombg.mobile.data.AuthRepository
 import com.halombg.mobile.ui.theme.HaloMBGTheme
 
 class DashboardActivity : ComponentActivity() {
@@ -18,7 +20,11 @@ class DashboardActivity : ComponentActivity() {
                 DashboardScreen(
                     role = role,
                     initialGoToAi = goToAi,
-                    onLogout = { finish() }
+                    onLogout = {
+                        AuthRepository(this).clearAll()
+                        startActivity(Intent(this, MainActivity::class.java))
+                        finish()
+                    }
                 )
             }
         }

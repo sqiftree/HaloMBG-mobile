@@ -4,7 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -15,6 +15,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
+import com.halombg.mobile.fragment.SiswaReviewScreen
+import com.halombg.mobile.fragment.SppgProfileScreen
 import com.halombg.mobile.fragment.ValidasiAiScreen
 import com.halombg.mobile.ui.theme.*
 
@@ -25,27 +27,23 @@ fun DashboardScreen(
     initialGoToAi: Boolean = false,
     onLogout: () -> Unit
 ) {
-    var selectedTab by remember { mutableIntStateOf(if (initialGoToAi) 1 else 0) }
+    var selectedTab by remember { mutableIntStateOf(0) }
     
     val tabs = when (role) {
         "Siswa" -> listOf(
-            TabItem("Ulasan", Icons.Default.Edit),
-            TabItem("Validasi AI", Icons.Default.Search)
+            TabItem("Beranda", Icons.Outlined.Home),
+            TabItem("Ulasan", Icons.Outlined.Edit)
         )
         "SPPG (Dapur)" -> listOf(
-            TabItem("Menu", Icons.Default.List),
-            TabItem("Distribusi", Icons.Default.Send),
-            TabItem("Validasi AI", Icons.Default.Search)
+            TabItem("Beranda", Icons.Outlined.Home),
+            TabItem("Distribusi", Icons.Outlined.Send),
+            TabItem("Profil Dapur", Icons.Outlined.Person)
         )
         "Guru" -> listOf(
-            TabItem("Moderasi", Icons.Default.CheckCircle),
-            TabItem("Validasi AI", Icons.Default.Search)
+            TabItem("Beranda", Icons.Outlined.Home),
+            TabItem("Moderasi", Icons.Outlined.CheckCircle)
         )
-        "Admin" -> listOf(
-            TabItem("Ringkasan", Icons.Default.Info),
-            TabItem("Validasi AI", Icons.Default.Search)
-        )
-        else -> listOf(TabItem("Beranda", Icons.Default.Home))
+        else -> listOf(TabItem("Beranda", Icons.Outlined.Home))
     }
 
     Scaffold(
@@ -63,7 +61,7 @@ fun DashboardScreen(
                 },
                 actions = {
                     Surface(
-                        shape = RoundedCornerShape(4.dp),
+                        shape = RoundedCornerShape(4.dp), // 4dp status badge corner
                         color = SecondaryGreen
                     ) {
                         Text(
@@ -76,7 +74,7 @@ fun DashboardScreen(
                     }
                     IconButton(onClick = onLogout) {
                         Icon(
-                            imageVector = Icons.Default.ExitToApp,
+                            imageVector = Icons.Outlined.ExitToApp,
                             contentDescription = "Keluar",
                             tint = Surface1
                         )
@@ -112,13 +110,15 @@ fun DashboardScreen(
             val currentTabTitle = tabs.getOrNull(selectedTab)?.title ?: ""
             
             when (currentTabTitle) {
-                "Validasi AI" -> ValidasiAiScreen()
+                "Beranda" -> BerandaScreen()
+                "Profil Dapur" -> SppgProfileScreen()
+                "Ulasan" -> SiswaReviewScreen()
                 else -> {
                     // Placeholder for other screens until they are migrated
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("Layar $currentTabTitle", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                            Text("Sedang dalam tahap migrasi ke Compose", color = TextSecondary, fontSize = 14.sp)
+                            Text("Layar $currentTabTitle", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = PrimaryNavy)
+                            Text("Sedang dalam tahap pengembangan", color = TextSecondary, fontSize = 14.sp)
                         }
                     }
                 }
@@ -135,13 +135,6 @@ fun DashboardSiswaPreview() {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun DashboardAdminPreview() {
-    HaloMBGTheme {
-        DashboardScreen(role = "Admin", onLogout = {})
-    }
-}
-
 data class TabItem(val title: String, val icon: ImageVector)
+
 
