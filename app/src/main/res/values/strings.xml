@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">HaloMBG</string>
+    <string name="landing_title">Pantau. Pastikan. Transparan.</string>
+    <string name="landing_subtitle">Platform transparan untuk memantau distribusi, menu, dan kualitas program Makan Bergizi Gratis (MBG) di seluruh Indonesia.</string>
+    <string name="search_placeholder">Cari nama sekolah atau kabupaten...</string>
+    <string name="login">Masuk</string>
+    <string name="register">Daftar</string>
+    <string name="admin">Admin</string>
+    <string name="siswa">Siswa</string>
+    <string name="sppg">SPPG (Dapur)</string>
+    <string name="guru">Guru</string>
+    <string name="features_title">Semua yang Anda butuhkan dalam satu tempat</string>
+    
+    <!-- Stats -->
+    <string name="stat_schools_num">215rb+</string>
+    <string name="stat_schools_label">Sekolah Terdaftar</string>
+    <string name="stat_provinces_num">34</string>
+    <string name="stat_provinces_label">Provinsi</string>
+    <string name="stat_kitchens_num">500</string>
+    <string name="stat_kitchens_label">Dapur SPPG</string>
+</resources>

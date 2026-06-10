@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand Palette per DESIGN.md -->
+    <color name="primary_navy">#071E49</color>
+    <color name="secondary_green">#92D05D</color>
+    <color name="accent_pastel_blue">#B5E0EA</color>
+    <color name="highlight_gold">#D1B06C</color>
+
+    <!-- Surfaces -->
+    <color name="surface_1">#FFFFFF</color>
+    <color name="surface_2">#F8F7F5</color>
+    <color name="surface_3">#F0EEEB</color>
+
+    <!-- Text Colors -->
+    <color name="text_primary">#1A1A18</color>
+    <color name="text_secondary">#5C5B57</color>
+    <color name="text_tertiary">#8E8D88</color>
+    <color name="text_inverse">#FFFFFF</color>
+
+    <!-- Borders -->
+    <color name="border_default">#E5E3DF</color>
+    <color name="border_strong">#C4C2BC</color>
+
+    <!-- Status Colors -->
+    <color name="status_success">#2E7D32</color>
+    <color name="status_warning">#E8A817</color>
+    <color name="status_error">#C62828</color>
+    <color name="status_info">#1565C0</color>
+
+    <!-- M3 Colors Map -->
+    <color name="primary">#071E49</color>
+    <color name="onPrimary">#FFFFFF</color>
+    <color name="primaryContainer">#B5E0EA</color>
+    <color name="onPrimaryContainer">#071E49</color>
+    <color name="secondary">#92D05D</color>
+    <color name="onSecondary">#071E49</color>
+    <color name="background">#F8F7F5</color>
+    <color name="onBackground">#1A1A18</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="onSurface">#1A1A18</color>
+</resources>
