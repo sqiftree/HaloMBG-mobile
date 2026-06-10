@@ -1,1 +1,32 @@
+# Built-in Gradle caches
+.gradle/
+build/
 
+# Android Studio and IntelliJ IDEA files
+.idea/
+*.iml
+*.ipr
+*.iws
+.navigation/
+
+# Local configuration files
+local.properties
+.cxx/
+.externalNativeBuild/
+
+# Device-specific build files
+captures/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Log files and crash reports
+*.log
+
+# Keystore files (for signing releases)
+*.jks
+*.keystore
+
+# Google Services file (if applicable)
+# google-services.json
