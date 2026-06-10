@@ -3,7 +3,7 @@
     <string name="app_name">HaloMBG</string>
     <string name="landing_title">Pantau. Pastikan. Transparan.</string>
     <string name="landing_subtitle">Platform transparan untuk memantau distribusi, menu, dan kualitas program Makan Bergizi Gratis (MBG) di seluruh Indonesia.</string>
-    <string name="search_placeholder">Cari nama sekolah atau kabupaten...</string>
+    <string name="search_placeholder">Cari sekolah atau daerah...</string>
     <string name="login">Masuk</string>
     <string name="register">Daftar</string>
     <string name="admin">Admin</string>
