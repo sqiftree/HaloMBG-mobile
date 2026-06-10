@@ -2,6 +2,7 @@ package com.halombg.mobile
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -12,11 +13,19 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.LocationOn
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Phone
+import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -24,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.halombg.mobile.ui.theme.HaloMBGTheme
 import com.halombg.mobile.ui.theme.*
+import com.halombg.mobile.data.AuthRepository
 import com.halombg.mobile.data.MockData
 import com.halombg.mobile.model.School
 
@@ -31,22 +41,25 @@ import com.halombg.mobile.model.School
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        val authRepository = AuthRepository(this)
+        if (authRepository.isLoggedIn()) {
+            val role = authRepository.getUserRole() ?: "Siswa"
+            val email = authRepository.getUserEmail() ?: ""
+            val dashboardIntent = Intent(this, DashboardActivity::class.java).apply {
+                putExtra("ROLE", role)
+                putExtra("USER_EMAIL", email)
+            }
+            startActivity(dashboardIntent)
+            finish()
+            return
+        }
+
         setContent {
             HaloMBGTheme {
                 MainScreen(
                     onLoginClick = {
                         startActivity(Intent(this, LoginActivity::class.java))
-                    },
-                    onFeatureClick = { role ->
-                        startActivity(Intent(this, LoginActivity::class.java).apply {
-                            putExtra("PRESELECT_ROLE", role)
-                        })
-                    },
-                    onAiClick = {
-                        startActivity(Intent(this, DashboardActivity::class.java).apply {
-                            putExtra("ROLE", "Siswa")
-                            putExtra("GO_TO_AI", true)
-                        })
                     }
                 )
             }
@@ -56,48 +69,209 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainScreen(
-    onLoginClick: () -> Unit,
-    onFeatureClick: (String) -> Unit,
-    onAiClick: () -> Unit
+    onLoginClick: () -> Unit
 ) {
-    var searchQuery by remember { mutableStateOf("") }
-    var selectedSchool by remember { mutableStateOf<School?>(null) }
-    val searchResults = remember(searchQuery) {
-        if (searchQuery.length >= 2) MockData.searchSchools(searchQuery) else emptyList()
-    }
-
     Scaffold(
         bottomBar = {
             BottomActionBar(onLoginClick = onLoginClick)
         }
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .verticalScroll(rememberScrollState())
-        ) {
-            // Hero Section
-            HeroSection(
-                searchQuery = searchQuery,
-                onSearchChange = { searchQuery = it },
-                searchResults = searchResults,
-                selectedSchool = selectedSchool,
-                onSchoolSelect = {
-                    selectedSchool = it
-                    searchQuery = it.name
-                }
-            )
+        BerandaScreen(modifier = Modifier.padding(padding))
+    }
+}
 
-            // Features Section
-            FeaturesSection(
-                onSppgSearchClick = { /* Scroll or focus search if needed */ },
-                onMenuClick = { onFeatureClick("Siswa") },
-                onDistribusiClick = { onFeatureClick("SPPG (Dapur)") },
-                onAiClick = onAiClick
+@Composable
+fun BerandaScreen(
+    modifier: Modifier = Modifier
+) {
+    var searchQuery by remember { mutableStateOf("") }
+    var selectedSchool by remember { mutableStateOf<School?>(null) }
+    var showKitchenProfileId by remember { mutableStateOf<Long?>(null) }
+    var showKitchenSelectorDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val searchResults = remember(searchQuery) {
+        if (searchQuery.length >= 2) MockData.searchSchools(searchQuery) else emptyList()
+    }
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+    ) {
+        // Hero Section
+        HeroSection(
+            searchQuery = searchQuery,
+            onSearchChange = { searchQuery = it },
+            searchResults = searchResults,
+            selectedSchool = selectedSchool,
+            onSchoolSelect = {
+                selectedSchool = it
+                searchQuery = it.name
+            },
+            onSppgClick = { showKitchenProfileId = it }
+        )
+
+        // Features Section
+        FeaturesSection(
+            onSppgSearchClick = {
+                Toast.makeText(context, "Silakan gunakan kolom pencarian di atas untuk mencari sekolah.", Toast.LENGTH_SHORT).show()
+            },
+            onMenuClick = {
+                Toast.makeText(context, "Fitur Menu Harian & Gizi dalam tahap pengembangan", Toast.LENGTH_SHORT).show()
+            },
+            onDistribusiClick = {
+                Toast.makeText(context, "Fitur Status Distribusi dalam tahap pengembangan", Toast.LENGTH_SHORT).show()
+            },
+            onProfilDapurClick = {
+                showKitchenSelectorDialog = true
+            }
+        )
+        
+        Spacer(modifier = Modifier.height(24.dp))
+    }
+
+    if (showKitchenSelectorDialog) {
+        val kitchens = MockData.sppgProfiles
+        AlertDialog(
+            onDismissRequest = { showKitchenSelectorDialog = false },
+            confirmButton = {
+                TextButton(onClick = { showKitchenSelectorDialog = false }) {
+                    Text("Batal", color = PrimaryNavy, fontWeight = FontWeight.Bold)
+                }
+            },
+            title = {
+                Text(
+                    text = "Pilih Dapur SPPG",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = PrimaryNavy
+                )
+            },
+            text = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 300.dp)
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = "Silakan pilih salah satu dapur SPPG di bawah ini untuk melihat detail profil:",
+                        fontSize = 12.sp,
+                        color = TextSecondary,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    kitchens.forEach { kitchen ->
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    showKitchenSelectorDialog = false
+                                    showKitchenProfileId = kitchen.id
+                                },
+                            shape = RoundedCornerShape(6.dp),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, BorderDefault),
+                            colors = CardDefaults.cardColors(containerColor = Surface1)
+                        ) {
+                            Column(modifier = Modifier.padding(12.dp)) {
+                                Text(kitchen.kitchenName, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = PrimaryNavy)
+                                Text("${kitchen.district}, ${kitchen.province}", fontSize = 12.sp, color = TextSecondary)
+                            }
+                        }
+                    }
+                }
+            },
+            containerColor = Surface1,
+            shape = RoundedCornerShape(8.dp)
+        )
+    }
+
+    if (showKitchenProfileId != null) {
+        val kitchenId = showKitchenProfileId!!
+        val profile = MockData.getSppgProfile(kitchenId)
+        if (profile != null) {
+            AlertDialog(
+                onDismissRequest = { showKitchenProfileId = null },
+                confirmButton = {
+                    TextButton(onClick = { showKitchenProfileId = null }) {
+                        Text("Tutup", color = PrimaryNavy, fontWeight = FontWeight.Bold)
+                    }
+                },
+                title = {
+                    Text(
+                        text = "Profil Dapur SPPG",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = PrimaryNavy
+                    )
+                },
+                text = {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        Text(
+                            text = profile.kitchenName,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = PrimaryNavy
+                        )
+                        Text(
+                            text = "${profile.district}, ${profile.province}",
+                            fontSize = 12.sp,
+                            color = TextSecondary,
+                            modifier = Modifier.padding(bottom = 12.dp)
+                        )
+                        
+                        HorizontalDivider(color = BorderDefault, modifier = Modifier.padding(bottom = 12.dp))
+                        
+                        DetailInfoRow(label = "Alamat Dapur", value = profile.address, icon = Icons.Outlined.LocationOn)
+                        DetailInfoRow(label = "Penanggung Jawab", value = profile.contactPersonName, icon = Icons.Outlined.Person)
+                        DetailInfoRow(label = "No. WhatsApp / Telepon", value = profile.contactPhone, icon = Icons.Outlined.Phone)
+                        DetailInfoRow(label = "Email Kontak", value = profile.contactEmail ?: "-", icon = Icons.Outlined.Email)
+                        DetailInfoRow(label = "Deskripsi", value = profile.description ?: "-", icon = Icons.Outlined.Info)
+                        DetailInfoRow(label = "Kapasitas Produksi", value = "${profile.productionCapacity} porsi / hari", icon = Icons.Outlined.Star)
+                    }
+                },
+                containerColor = Surface1,
+                shape = RoundedCornerShape(8.dp)
             )
-            
-            Spacer(modifier = Modifier.height(24.dp))
+        }
+    }
+}
+
+@Composable
+fun DetailInfoRow(label: String, value: String, icon: ImageVector) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 6.dp),
+        verticalAlignment = Alignment.Top
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = PrimaryNavy,
+            modifier = Modifier
+                .size(18.dp)
+                .padding(top = 2.dp)
+        )
+        Spacer(modifier = Modifier.width(10.dp))
+        Column {
+            Text(
+                text = label,
+                fontSize = 10.sp,
+                color = TextTertiary,
+                fontWeight = FontWeight.Medium
+            )
+            Text(
+                text = value.ifBlank { "-" },
+                fontSize = 13.sp,
+                color = TextPrimary,
+                fontWeight = FontWeight.Normal,
+                modifier = Modifier.padding(top = 1.dp)
+            )
         }
     }
 }
@@ -108,7 +282,8 @@ fun HeroSection(
     onSearchChange: (String) -> Unit,
     searchResults: List<School>,
     selectedSchool: School?,
-    onSchoolSelect: (School) -> Unit
+    onSchoolSelect: (School) -> Unit,
+    onSppgClick: (Long) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -215,7 +390,24 @@ fun HeroSection(
                     
                     Text("Dapur SPPG Penyedia:", fontSize = 11.sp, color = TextSecondary)
                     val sppg = selectedSchool.sppgId?.let { MockData.getSppgProfile(it) }
-                    Text(sppg?.kitchenName ?: "Belum terhubung ke dapur SPPG", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = PrimaryNavy)
+                    if (sppg != null) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(sppg.kitchenName, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = PrimaryNavy)
+                            TextButton(
+                                onClick = { onSppgClick(sppg.id) },
+                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp),
+                                colors = ButtonDefaults.textButtonColors(contentColor = PrimaryNavy)
+                            ) {
+                                Text("Lihat Profil ➜", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    } else {
+                        Text("Belum terhubung ke dapur SPPG", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = PrimaryNavy, modifier = Modifier.padding(top = 4.dp))
+                    }
                 }
             }
         }
@@ -260,7 +452,7 @@ fun FeaturesSection(
     onSppgSearchClick: () -> Unit,
     onMenuClick: () -> Unit,
     onDistribusiClick: () -> Unit,
-    onAiClick: () -> Unit
+    onProfilDapurClick: () -> Unit
 ) {
     Column(modifier = Modifier.padding(24.dp)) {
         Text("FITUR PLATFORM", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = PrimaryNavy)
@@ -285,9 +477,9 @@ fun FeaturesSection(
             modifier = Modifier.padding(top = 12.dp)
         )
         FeatureCard(
-            title = "Validasi Gizi AI \u2726",
-            description = "Evaluasi foto makanan secara otomatis untuk validasi kandungan protein, kalori, dan zat gizi.",
-            onClick = onAiClick,
+            title = "Profil Dapur",
+            description = "Lihat informasi lengkap setiap dapur MBG — alamat, kapasitas, dan sekolah yang dilayani.",
+            onClick = onProfilDapurClick,
             modifier = Modifier.padding(top = 12.dp)
         )
     }
@@ -340,9 +532,7 @@ fun BottomActionBar(onLoginClick: () -> Unit) {
 fun MainScreenPreview() {
     HaloMBGTheme {
         MainScreen(
-            onLoginClick = {},
-            onFeatureClick = {},
-            onAiClick = {}
+            onLoginClick = {}
         )
     }
 }
