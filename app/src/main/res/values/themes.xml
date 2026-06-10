@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base application theme. -->
+    <style name="Theme.HaloMBG" parent="Theme.Material3.Light">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/primary_navy</item>
+        <item name="colorOnPrimary">@color/text_inverse</item>
+        <item name="colorPrimaryContainer">@color/accent_pastel_blue</item>
+        <item name="colorOnPrimaryContainer">@color/primary_navy</item>
+        
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/secondary_green</item>
+        <item name="colorOnSecondary">@color/primary_navy</item>
+        
+        <!-- Background and surface colors. -->
+        <item name="android:windowBackground">@color/surface_2</item>
+        <item name="colorSurface">@color/surface_1</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorSurfaceVariant">@color/surface_3</item>
+        <item name="colorOnSurfaceVariant">@color/text_secondary</item>
+    </style>
+
+    <style name="Theme.HaloMBG.NoActionBar" parent="Theme.HaloMBG">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+</resources>
