@@ -60,6 +60,14 @@ class SiswaReviewViewModel(application: Application) : AndroidViewModel(applicat
     val studentName = authRepository.getUserName() ?: "Ahmad Dani"
     val currentUserEmail: String
         get() = authRepository.getUserEmail()?.trim() ?: ""
+
+    fun isOwnReview(review: Review): Boolean {
+        if (review.userId.equals(currentUserEmail, ignoreCase = true)) {
+            return true
+        }
+        return review.userName.equals(studentName, ignoreCase = true)
+    }
+
     var editingReviewId by mutableStateOf<Long?>(null)
 
     fun loadData() {
@@ -183,6 +191,7 @@ class SiswaReviewViewModel(application: Application) : AndroidViewModel(applicat
                     if (index != -1) {
                         val oldReview = MockData.reviews[index]
                         MockData.reviews[index] = oldReview.copy(
+                            userId = currentUserEmail,
                             content = content,
                             photo = simulatedPhotoName ?: capturedImageUri?.lastPathSegment
                         )
@@ -221,6 +230,7 @@ class SiswaReviewViewModel(application: Application) : AndroidViewModel(applicat
                         if (index != -1) {
                             val oldReview = MockData.reviews[index]
                             MockData.reviews[index] = oldReview.copy(
+                                userId = currentUserEmail,
                                 content = content,
                                 photo = simulatedPhotoName ?: capturedImageUri?.lastPathSegment
                             )
@@ -309,7 +319,7 @@ class SiswaReviewViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     fun deleteReview(review: Review) {
-        if (!review.userId.equals(currentUserEmail, ignoreCase = true)) {
+        if (!isOwnReview(review)) {
             errorMessage = "Anda tidak memiliki akses untuk menghapus ulasan ini"
             return
         }

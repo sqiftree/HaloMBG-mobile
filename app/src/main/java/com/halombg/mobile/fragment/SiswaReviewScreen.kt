@@ -549,7 +549,7 @@ fun SiswaReviewScreen(
                     }
                 } else {
                     items(viewModel.reviewsList) { review ->
-                        val isOwnReview = review.userId.equals(viewModel.currentUserEmail, ignoreCase = true)
+                        val isOwnReview = viewModel.isOwnReview(review)
                         ReviewItemRow(
                             review = review,
                             isOwnReview = isOwnReview,
