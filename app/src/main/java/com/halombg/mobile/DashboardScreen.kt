@@ -96,8 +96,8 @@ fun DashboardScreen(
         },
         bottomBar = {
             NavigationBar(
-                containerColor = Surface1,
-                contentColor = PrimaryNavy
+                containerColor = PrimaryNavy,
+                contentColor = Color.White
             ) {
                 tabs.forEachIndexed { index, tab ->
                     NavigationBarItem(
@@ -106,11 +106,11 @@ fun DashboardScreen(
                         label = { Text(tab.title) },
                         icon = { Icon(tab.icon, contentDescription = null) },
                         colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = PrimaryNavy,
-                            selectedTextColor = PrimaryNavy,
-                            unselectedIconColor = TextTertiary,
-                            unselectedTextColor = TextTertiary,
-                            indicatorColor = AccentPastelBlue
+                            selectedIconColor = SecondaryGreen,
+                            selectedTextColor = SecondaryGreen,
+                            unselectedIconColor = Color.White.copy(alpha = 0.6f),
+                            unselectedTextColor = Color.White.copy(alpha = 0.6f),
+                            indicatorColor = SecondaryGreen.copy(alpha = 0.15f)
                         )
                     )
                 }
@@ -118,6 +118,17 @@ fun DashboardScreen(
         }
     ) { padding ->
         Box(modifier = Modifier.padding(padding)) {
+            // A thin gradient border/stripe at the top of the content area to match .dl-content::before in web
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(3.dp)
+                    .background(
+                        androidx.compose.ui.graphics.Brush.horizontalGradient(
+                            colors = listOf(PrimaryNavy, SecondaryGreen, AccentPastelBlue)
+                        )
+                    )
+            )
             val currentTabTitle = tabs.getOrNull(selectedTab)?.title ?: ""
             
             when (currentTabTitle) {
