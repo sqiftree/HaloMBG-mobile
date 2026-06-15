@@ -66,11 +66,12 @@ fun GuruModerationScreen() {
                     ModerationReviewCard(
                         review = review,
                         onFlag = {
-                            review.flagStatus = if (review.flagStatus == "flagged") "none" else "flagged"
+                            val nextStatus = if (review.flagStatus == "flagged") "none" else "flagged"
+                            MockData.updateReviewFlagStatus(review.id, nextStatus)
                             reviews = MockData.getReviewsForSchool(schoolId)
                         },
                         onDelete = {
-                            review.flagStatus = "deleted"
+                            MockData.updateReviewFlagStatus(review.id, "deleted")
                             reviews = MockData.getReviewsForSchool(schoolId)
                         }
                     )

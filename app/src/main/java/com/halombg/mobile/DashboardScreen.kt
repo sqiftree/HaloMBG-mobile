@@ -288,6 +288,16 @@ fun BerandaScreen(role: String) {
                         Text("SEKOLAH ANDA", color = AccentPastelBlue, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                         Text(school.name, color = Surface1, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                         Text("${school.district}, ${school.province}", color = Surface3, fontSize = 13.sp)
+                        
+                        val sppg = school.sppgId?.let { MockData.getSppgProfile(it) }
+                        if (sppg != null) {
+                            HorizontalDivider(
+                                modifier = Modifier.padding(vertical = 12.dp), 
+                                color = Surface1.copy(alpha = 0.2f)
+                            )
+                            Text("DAPUR PENYEDIA", color = AccentPastelBlue, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                            Text(sppg.kitchenName, color = Surface1, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                        }
                     }
                 }
             }
@@ -332,6 +342,169 @@ fun BerandaScreen(role: String) {
                             tint = if (flaggedCount > 0) StatusError else TextTertiary,
                             modifier = Modifier.size(32.dp)
                         )
+                    }
+                }
+            }
+
+            // MENU HARI INI
+            item {
+                val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+                val menu = school.sppgId?.let { MockData.getDailyMenuForSppg(it, today) }
+                
+                Text(
+                    text = "MENU MAKANAN HARI INI", 
+                    color = PrimaryNavy, 
+                    fontSize = 12.sp, 
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+                
+                if (menu != null) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = Surface1),
+                        border = BorderStroke(1.dp, BorderDefault)
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(menu.menuName, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
+                            Text(
+                                text = menu.components ?: "", 
+                                fontSize = 13.sp, 
+                                color = TextSecondary, 
+                                maxLines = 2,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                            
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(), 
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                MacroItem(value = "${menu.calories}", label = "kkal")
+                                MacroItem(value = "${menu.protein}g", label = "Protein")
+                                MacroItem(value = "${menu.carbs}g", label = "Karbo")
+                                MacroItem(value = "${menu.fat}g", label = "Lemak")
+                            }
+                        }
+                    }
+                } else {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = Surface1),
+                        border = BorderStroke(1.dp, BorderDefault)
+                    ) {
+                        Text(
+                            text = "Belum ada menu yang diumumkan untuk hari ini.",
+                            modifier = Modifier.padding(24.dp).fillMaxWidth(),
+                            fontSize = 14.sp,
+                            color = TextSecondary,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            }
+
+            // STATUS PENGIRIMAN
+            item {
+                val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+                val distStatus = MockData.distributionStatuses.find { it.schoolId == schoolId && it.distributedAt == today }
+                
+                Text(
+                    text = "STATUS PENGIRIMAN MAKANAN", 
+                    color = PrimaryNavy, 
+                    fontSize = 12.sp, 
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+                
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = Surface1),
+                    border = BorderStroke(1.dp, BorderDefault)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            if (distStatus != null) {
+                                StatusBadge(distStatus.status)
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = distStatus.statusUpdatedAt,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = TextPrimary
+                                )
+                            } else {
+                                Text(
+                                    text = "Belum ada informasi pengiriman.",
+                                    fontSize = 14.sp,
+                                    color = TextSecondary
+                                )
+                            }
+                        }
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Outlined.Send,
+                            contentDescription = null,
+                            tint = if (distStatus?.status == "sudah_diantar") StatusSuccess else TextTertiary,
+                            modifier = Modifier.size(32.dp)
+                        )
+                    }
+                }
+            }
+
+            // ULASAN TERBARU SISWA
+            item {
+                val recentReviews = MockData.getReviewsForSchool(schoolId).take(3)
+                if (recentReviews.isNotEmpty()) {
+                    Text(
+                        text = "ULASAN TERBARU SISWA",
+                        color = PrimaryNavy,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                    
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 4.dp)) {
+                        recentReviews.forEach { review ->
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(8.dp),
+                                colors = CardDefaults.cardColors(containerColor = Surface1),
+                                border = BorderStroke(1.dp, BorderDefault)
+                            ) {
+                                Column(modifier = Modifier.padding(12.dp)) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text(
+                                            text = review.userName,
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = PrimaryNavy
+                                        )
+                                        Text(
+                                            text = review.reviewDate,
+                                            fontSize = 10.sp,
+                                            color = TextSecondary
+                                        )
+                                    }
+                                    Text(
+                                        text = review.content,
+                                        fontSize = 12.sp,
+                                        color = TextPrimary,
+                                        maxLines = 2,
+                                        overflow = TextOverflow.Ellipsis,
+                                        modifier = Modifier.padding(top = 2.dp)
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
