@@ -2,6 +2,7 @@ package com.halombg.mobile.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -25,13 +26,29 @@ import androidx.compose.ui.res.painterResource
 @Composable
 fun Logo(
     modifier: Modifier = Modifier,
-    size: Dp = 32.dp
+    size: Dp = 32.dp,
+    transparent: Boolean = false
 ) {
-    Image(
-        painter = painterResource(id = com.halombg.mobile.R.drawable.ic_logo_halombg),
-        contentDescription = "HaloMBG Logo",
-        modifier = modifier.size(size)
-    )
+    Box(
+        modifier = modifier
+            .size(size)
+            .then(
+                if (transparent) {
+                    Modifier
+                } else {
+                    Modifier
+                        .background(Color.White, CircleShape)
+                        .padding(4.dp)
+                }
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Image(
+            painter = painterResource(id = com.halombg.mobile.R.drawable.ic_logo_halombg),
+            contentDescription = "HaloMBG Logo",
+            modifier = Modifier.fillMaxSize()
+        )
+    }
 }
 
 @Composable

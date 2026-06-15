@@ -625,7 +625,7 @@ fun BottomActionBar(onLoginClick: () -> Unit) {
                 modifier = Modifier.weight(1f),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Logo(size = 28.dp)
+                Logo(size = 28.dp, transparent = true)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("HaloMBG", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = PrimaryNavy)
             }
