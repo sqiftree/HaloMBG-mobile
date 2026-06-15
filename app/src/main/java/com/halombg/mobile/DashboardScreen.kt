@@ -286,9 +286,7 @@ fun BerandaScreen(role: String) {
                     }
                 }
             }
-        }
-
-        if (role == "Guru" && school != null) {
+        } else if (role == "Guru" && school != null) {
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -519,9 +517,7 @@ fun BerandaScreen(role: String) {
                     }
                 }
             }
-        }
-
-        if (role == "Siswa" && school != null) {
+        } else if (role == "Siswa" && school != null) {
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),

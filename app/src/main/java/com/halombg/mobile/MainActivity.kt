@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import com.halombg.mobile.ui.theme.HaloMBGTheme
 import com.halombg.mobile.ui.theme.*
 import com.halombg.mobile.ui.StatusBadge
+import com.halombg.mobile.ui.Logo
 import com.halombg.mobile.data.AuthRepository
 import com.halombg.mobile.data.MockData
 import com.halombg.mobile.model.School
@@ -620,7 +621,14 @@ fun BottomActionBar(onLoginClick: () -> Unit) {
                 .padding(horizontal = 24.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("HaloMBG", modifier = Modifier.weight(1f), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = PrimaryNavy)
+            Row(
+                modifier = Modifier.weight(1f),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Logo(size = 28.dp)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("HaloMBG", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = PrimaryNavy)
+            }
             Button(
                 onClick = onLoginClick,
                 shape = RoundedCornerShape(6.dp),

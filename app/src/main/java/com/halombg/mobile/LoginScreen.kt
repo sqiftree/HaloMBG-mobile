@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.halombg.mobile.ui.theme.*
+import com.halombg.mobile.ui.Logo
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,13 +57,20 @@ fun LoginScreen(
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
         ) {
-            Text(
-                text = "HaloMBG",
-                color = Color.White,
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                fontFamily = FontFamily.SansSerif
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Logo(size = 36.dp)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "HaloMBG",
+                    color = Color.White,
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = FontFamily.SansSerif
+                )
+            }
             Text(
                 text = "Portal Monitoring Program Makan Bergizi",
                 color = AccentPastelBlue,
