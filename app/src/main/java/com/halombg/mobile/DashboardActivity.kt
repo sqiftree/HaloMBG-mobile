@@ -13,13 +13,11 @@ class DashboardActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val role = intent.getStringExtra("ROLE") ?: "Siswa"
-        val goToAi = intent.getBooleanExtra("GO_TO_AI", false)
 
         setContent {
             HaloMBGTheme {
                 DashboardScreen(
                     role = role,
-                    initialGoToAi = goToAi,
                     onLogout = {
                         AuthRepository(this).clearAll()
                         startActivity(Intent(this, MainActivity::class.java))

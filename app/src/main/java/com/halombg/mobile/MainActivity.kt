@@ -33,9 +33,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.halombg.mobile.ui.theme.HaloMBGTheme
 import com.halombg.mobile.ui.theme.*
+import com.halombg.mobile.ui.StatusBadge
+import com.halombg.mobile.ui.Logo
 import com.halombg.mobile.data.AuthRepository
 import com.halombg.mobile.data.MockData
 import com.halombg.mobile.model.School
+import java.text.SimpleDateFormat
+import java.util.*
 
 // Main entry point for the application
 class MainActivity : ComponentActivity() {
@@ -76,18 +80,20 @@ fun MainScreen(
             BottomActionBar(onLoginClick = onLoginClick)
         }
     ) { padding ->
-        BerandaScreen(modifier = Modifier.padding(padding))
+        PublicLandingScreen(modifier = Modifier.padding(padding))
     }
 }
 
 @Composable
-fun BerandaScreen(
+fun PublicLandingScreen(
     modifier: Modifier = Modifier
 ) {
     var searchQuery by remember { mutableStateOf("") }
     var selectedSchool by remember { mutableStateOf<School?>(null) }
     var showKitchenProfileId by remember { mutableStateOf<Long?>(null) }
     var showKitchenSelectorDialog by remember { mutableStateOf(false) }
+    var showMenuDialog by remember { mutableStateOf(false) }
+    var showStatusDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val searchResults = remember(searchQuery) {
         if (searchQuery.length >= 2) MockData.searchSchools(searchQuery) else emptyList()
@@ -117,10 +123,18 @@ fun BerandaScreen(
                 Toast.makeText(context, "Silakan gunakan kolom pencarian di atas untuk mencari sekolah.", Toast.LENGTH_SHORT).show()
             },
             onMenuClick = {
-                Toast.makeText(context, "Fitur Menu Harian & Gizi dalam tahap pengembangan", Toast.LENGTH_SHORT).show()
+                if (selectedSchool != null) {
+                    showMenuDialog = true
+                } else {
+                    Toast.makeText(context, "Silakan pilih sekolah melalui kolom pencarian terlebih dahulu.", Toast.LENGTH_SHORT).show()
+                }
             },
             onDistribusiClick = {
-                Toast.makeText(context, "Fitur Status Distribusi dalam tahap pengembangan", Toast.LENGTH_SHORT).show()
+                if (selectedSchool != null) {
+                    showStatusDialog = true
+                } else {
+                    Toast.makeText(context, "Silakan pilih sekolah melalui kolom pencarian terlebih dahulu.", Toast.LENGTH_SHORT).show()
+                }
             },
             onProfilDapurClick = {
                 showKitchenSelectorDialog = true
@@ -239,6 +253,86 @@ fun BerandaScreen(
             )
         }
     }
+
+    if (showMenuDialog && selectedSchool != null) {
+        val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+        val menu = selectedSchool?.sppgId?.let { MockData.getDailyMenuForSppg(it, today) }
+        
+        AlertDialog(
+            onDismissRequest = { showMenuDialog = false },
+            confirmButton = {
+                TextButton(onClick = { showMenuDialog = false }) {
+                    Text("Tutup", color = PrimaryNavy, fontWeight = FontWeight.Bold)
+                }
+            },
+            title = {
+                Text("Menu Makanan Hari Ini", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = PrimaryNavy)
+            },
+            text = {
+                if (menu != null) {
+                    Column {
+                        Text(menu.menuName, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
+                        Text(menu.components ?: "", fontSize = 13.sp, color = TextSecondary, modifier = Modifier.padding(top = 4.dp))
+                        
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            PublicMacroItem("${menu.calories}", "kkal")
+                            PublicMacroItem("${menu.protein}g", "Protein")
+                            PublicMacroItem("${menu.carbs}g", "Karbo")
+                            PublicMacroItem("${menu.fat}g", "Lemak")
+                        }
+                    }
+                } else {
+                    Text("Belum ada menu yang diumumkan untuk hari ini.", color = TextSecondary)
+                }
+            },
+            containerColor = Surface1,
+            shape = RoundedCornerShape(8.dp)
+        )
+    }
+
+    if (showStatusDialog && selectedSchool != null) {
+        val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+        val status = MockData.distributionStatuses.find { it.schoolId == selectedSchool?.id && it.distributedAt == today }
+        
+        AlertDialog(
+            onDismissRequest = { showStatusDialog = false },
+            confirmButton = {
+                TextButton(onClick = { showStatusDialog = false }) {
+                    Text("Tutup", color = PrimaryNavy, fontWeight = FontWeight.Bold)
+                }
+            },
+            title = {
+                Text("Status Distribusi", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = PrimaryNavy)
+            },
+            text = {
+                Column {
+                    Text("Sekolah: ${selectedSchool?.name}", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = TextSecondary)
+                    Spacer(modifier = Modifier.height(12.dp))
+                    
+                    if (status != null) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            StatusBadge(status = status.status)
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(status.statusUpdatedAt, fontSize = 13.sp, color = TextPrimary)
+                        }
+                    } else {
+                        Text("Belum ada informasi pengiriman untuk hari ini.", color = TextSecondary)
+                    }
+                }
+            },
+            containerColor = Surface1,
+            shape = RoundedCornerShape(8.dp)
+        )
+    }
+}
+
+@Composable
+fun PublicMacroItem(value: String, label: String) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(value, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = PrimaryNavy)
+        Text(label, fontSize = 10.sp, color = TextTertiary)
+    }
 }
 
 @Composable
@@ -327,8 +421,8 @@ fun HeroSection(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(48.dp)
-                    .padding(horizontal = 12.dp),
+                    .heightIn(min = 48.dp)
+                    .padding(horizontal = 12.dp, vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
@@ -527,7 +621,14 @@ fun BottomActionBar(onLoginClick: () -> Unit) {
                 .padding(horizontal = 24.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("HaloMBG", modifier = Modifier.weight(1f), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = PrimaryNavy)
+            Row(
+                modifier = Modifier.weight(1f),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Logo(size = 28.dp, transparent = true)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("HaloMBG", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = PrimaryNavy)
+            }
             Button(
                 onClick = onLoginClick,
                 shape = RoundedCornerShape(6.dp),

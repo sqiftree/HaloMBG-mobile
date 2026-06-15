@@ -56,10 +56,26 @@ class SiswaReviewViewModel(application: Application) : AndroidViewModel(applicat
     var successMessage by mutableStateOf<String?>(null)
 
     val isSimulationMode = authRepository.isSimulationMode()
-    private val studentSchoolId = 1L // Mock SD Negeri 1 Jaya
-    private val studentName = authRepository.getUserName() ?: "Ahmad Dani"
+    private val studentSchoolId = authRepository.getSchoolId()
+    val studentName = authRepository.getUserName() ?: "Ahmad Dani"
+    val currentUserEmail: String
+        get() = authRepository.getUserEmail()?.trim() ?: ""
+
+    fun isOwnReview(review: Review): Boolean {
+        if (review.userId.equals(currentUserEmail, ignoreCase = true)) {
+            return true
+        }
+        return review.userName.equals(studentName, ignoreCase = true)
+    }
+
+    var editingReviewId by mutableStateOf<Long?>(null)
 
     fun loadData() {
+        if (studentSchoolId == -1L) {
+            errorMessage = "Data sekolah tidak ditemukan. Silakan login ulang."
+            isLoading = false
+            return
+        }
         errorMessage = null
         isLoading = true
 
@@ -154,32 +170,54 @@ class SiswaReviewViewModel(application: Application) : AndroidViewModel(applicat
         successMessage = null
 
         val content = reviewContent.trim()
+        if (content.isEmpty()) {
+            errorMessage = "Ulasan tidak boleh kosong"
+            return
+        }
+        
         if (content.length < 10) {
-            errorMessage = "Ulasan minimal 10 karakter"
+            errorMessage = "Ulasan terlalu pendek (minimal 10 karakter)"
             return
         }
 
         isSubmitting = true
 
         viewModelScope.launch {
+            val isEdit = editingReviewId != null
             if (isSimulationMode) {
                 val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-                val newReview = Review(
-                    id = (MockData.reviews.maxOfOrNull { it.id } ?: 0L) + 1,
-                    userId = "siswa_1",
-                    userName = studentName,
-                    schoolId = studentSchoolId,
-                    schoolName = MockData.schools.find { it.id == studentSchoolId }?.name ?: "Sekolah",
-                    reviewDate = today,
-                    content = content,
-                    photo = simulatedPhotoName ?: capturedImageUri?.lastPathSegment
-                )
-                val criticalWords = listOf("basi", "bau", "busuk", "kotor")
-                val foundWord = criticalWords.find { content.contains(it, ignoreCase = true) }
-                if (foundWord != null) {
-                    newReview.followUpStatus = "belum_diproses"
+                if (isEdit) {
+                    val index = MockData.reviews.indexOfFirst { it.id == editingReviewId }
+                    if (index != -1) {
+                        val oldReview = MockData.reviews[index]
+                        val criticalWords = listOf("basi", "bau", "busuk", "kotor")
+                        val foundWord = criticalWords.find { content.contains(it, ignoreCase = true) }
+                        val followUp = if (foundWord != null) "belum_diproses" else oldReview.followUpStatus
+                        MockData.reviews[index] = oldReview.copy(
+                            userId = currentUserEmail,
+                            content = content,
+                            photo = simulatedPhotoName ?: capturedImageUri?.lastPathSegment,
+                            followUpStatus = followUp
+                        )
+                    }
+                } else {
+                    val newReview = Review(
+                        id = (MockData.reviews.maxOfOrNull { it.id } ?: 0L) + 1,
+                        userId = currentUserEmail,
+                        userName = studentName,
+                        schoolId = studentSchoolId,
+                        schoolName = MockData.schools.find { it.id == studentSchoolId }?.name ?: "Sekolah",
+                        reviewDate = today,
+                        content = content,
+                        photo = simulatedPhotoName ?: capturedImageUri?.lastPathSegment
+                    )
+                    val criticalWords = listOf("basi", "bau", "busuk", "kotor")
+                    val foundWord = criticalWords.find { content.contains(it, ignoreCase = true) }
+                    if (foundWord != null) {
+                        newReview.followUpStatus = "belum_diproses"
+                    }
+                    MockData.addReview(newReview)
                 }
-                MockData.addReview(newReview)
                 
                 // Trigger notification simulation
                 triggerReviewNotifications(studentName, content)
@@ -192,51 +230,77 @@ class SiswaReviewViewModel(application: Application) : AndroidViewModel(applicat
                 reviewContent = ""
                 simulatedPhotoName = null
                 capturedImageUri = null
-                successMessage = "Ulasan berhasil dikirim!"
+                editingReviewId = null
+                successMessage = if (isEdit) "Ulasan berhasil diperbarui!" else "Ulasan berhasil dikirim!"
                 isSubmitting = false
             } else {
                 try {
                     val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-                    val base64Image = capturedImageUri?.let { convertUriToBase64(it) }
-
-                    val request = ReviewRequest(
-                        content = content,
-                        reviewDate = today,
-                        photo = base64Image
-                    )
-
-                    val response = apiService.postSiswaReview(request)
-                    if (response.isSuccessful) {
-                        val reviewDto = response.body()?.review
-                        val newReview = Review(
-                            id = reviewDto?.id ?: ((MockData.reviews.maxOfOrNull { it.id } ?: 0L) + 1),
-                            userId = "siswa_1",
-                            userName = studentName,
-                            schoolId = studentSchoolId,
-                            schoolName = MockData.schools.find { it.id == studentSchoolId }?.name ?: "Sekolah",
-                            reviewDate = today,
-                            content = content,
-                            photo = reviewDto?.photo ?: capturedImageUri?.lastPathSegment
-                        )
-                        val criticalWords = listOf("basi", "bau", "busuk", "kotor")
-                        val foundWord = criticalWords.find { content.contains(it, ignoreCase = true) }
-                        if (foundWord != null) {
-                            newReview.followUpStatus = "belum_diproses"
+                    if (isEdit) {
+                        // In non-simulation mode, update it locally in MockData and reviewsList to reflect the change
+                        val index = MockData.reviews.indexOfFirst { it.id == editingReviewId }
+                        if (index != -1) {
+                            val oldReview = MockData.reviews[index]
+                            val criticalWords = listOf("basi", "bau", "busuk", "kotor")
+                            val foundWord = criticalWords.find { content.contains(it, ignoreCase = true) }
+                            val followUp = if (foundWord != null) "belum_diproses" else oldReview.followUpStatus
+                            MockData.reviews[index] = oldReview.copy(
+                                userId = currentUserEmail,
+                                content = content,
+                                photo = simulatedPhotoName ?: capturedImageUri?.lastPathSegment,
+                                followUpStatus = followUp
+                            )
                         }
-                        MockData.addReview(newReview)
-
-                        // Trigger notification simulation
-                        triggerReviewNotifications(studentName, content)
-
                         reviewsList.clear()
                         reviewsList.addAll(MockData.getReviewsForSchool(studentSchoolId))
 
                         reviewContent = ""
                         capturedImageUri = null
                         simulatedPhotoName = null
-                        successMessage = "Ulasan berhasil dikirim ke server!"
+                        editingReviewId = null
+                        successMessage = "Ulasan berhasil diperbarui!"
                     } else {
-                        errorMessage = "Gagal mengirim ulasan: ${response.message()}"
+                        val base64Image = capturedImageUri?.let { convertUriToBase64(it) }
+
+                        val request = ReviewRequest(
+                            content = content,
+                            reviewDate = today,
+                            photo = base64Image
+                        )
+
+                        val response = apiService.postSiswaReview(request)
+                        if (response.isSuccessful) {
+                            val reviewDto = response.body()?.review
+                            val newReview = Review(
+                                id = reviewDto?.id ?: ((MockData.reviews.maxOfOrNull { it.id } ?: 0L) + 1),
+                                userId = currentUserEmail,
+                                userName = studentName,
+                                schoolId = studentSchoolId,
+                                schoolName = MockData.schools.find { it.id == studentSchoolId }?.name ?: "Sekolah",
+                                reviewDate = today,
+                                content = content,
+                                photo = reviewDto?.photo ?: capturedImageUri?.lastPathSegment
+                            )
+                            val criticalWords = listOf("basi", "bau", "busuk", "kotor")
+                            val foundWord = criticalWords.find { content.contains(it, ignoreCase = true) }
+                            if (foundWord != null) {
+                                newReview.followUpStatus = "belum_diproses"
+                            }
+                            MockData.addReview(newReview)
+
+                            // Trigger notification simulation
+                            triggerReviewNotifications(studentName, content)
+
+                            reviewsList.clear()
+                            reviewsList.addAll(MockData.getReviewsForSchool(studentSchoolId))
+
+                            reviewContent = ""
+                            capturedImageUri = null
+                            simulatedPhotoName = null
+                            successMessage = "Ulasan berhasil dikirim ke server!"
+                        } else {
+                            errorMessage = "Gagal mengirim ulasan: ${response.message()}"
+                        }
                     }
                 } catch (e: IOException) {
                     errorMessage = "Kesalahan jaringan: Gagal terhubung ke server."
@@ -263,6 +327,24 @@ class SiswaReviewViewModel(application: Application) : AndroidViewModel(applicat
         }
     }
 
+    fun startEditing(review: Review) {
+        editingReviewId = review.id
+        reviewContent = review.content
+        if (review.photo != null) {
+            simulatedPhotoName = review.photo
+            capturedImageUri = null
+        } else {
+            simulatedPhotoName = null
+            capturedImageUri = null
+        }
+    }
+
+    fun cancelEditing() {
+        editingReviewId = null
+        reviewContent = ""
+        simulatedPhotoName = null
+        capturedImageUri = null
+    }
     fun simulatePhoto() {
         simulatedPhotoName = "makan_siswa_${System.currentTimeMillis() / 1000}.jpg"
         capturedImageUri = null
@@ -274,6 +356,13 @@ class SiswaReviewViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     fun deleteReview(review: Review) {
+        if (!isOwnReview(review)) {
+            errorMessage = "Anda tidak memiliki akses untuk menghapus ulasan ini"
+            return
+        }
+        if (editingReviewId == review.id) {
+            cancelEditing()
+        }
         MockData.reviews.remove(review)
         reviewsList.remove(review)
         successMessage = "Ulasan berhasil dihapus"
