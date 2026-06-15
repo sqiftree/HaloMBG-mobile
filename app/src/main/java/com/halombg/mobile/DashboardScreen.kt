@@ -18,6 +18,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.halombg.mobile.fragment.SiswaReviewScreen
 import com.halombg.mobile.fragment.SppgProfileScreen
 import com.halombg.mobile.fragment.SppgDistribusiScreen
+import com.halombg.mobile.fragment.GuruModerasiScreen
+import com.halombg.mobile.fragment.SppgFollowUpScreen
 import com.halombg.mobile.fragment.ValidasiAiScreen
 import com.halombg.mobile.ui.theme.*
 
@@ -38,6 +40,7 @@ fun DashboardScreen(
         "SPPG (Dapur)" -> listOf(
             TabItem("Beranda", Icons.Outlined.Home),
             TabItem("Distribusi", Icons.Outlined.Send),
+            TabItem("Ulasan Kritis", Icons.Outlined.Warning),
             TabItem("Profil Dapur", Icons.Outlined.Person)
         )
         "Guru" -> listOf(
@@ -115,6 +118,8 @@ fun DashboardScreen(
                 "Profil Dapur" -> SppgProfileScreen()
                 "Ulasan" -> SiswaReviewScreen()
                 "Distribusi" -> SppgDistribusiScreen()
+                "Moderasi" -> GuruModerasiScreen()
+                "Ulasan Kritis" -> SppgFollowUpScreen()
                 else -> {
                     // Placeholder for other screens until they are migrated
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

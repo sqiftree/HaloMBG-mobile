@@ -174,8 +174,16 @@ class SiswaReviewViewModel(application: Application) : AndroidViewModel(applicat
                     content = content,
                     photo = simulatedPhotoName ?: capturedImageUri?.lastPathSegment
                 )
+                val criticalWords = listOf("basi", "bau", "busuk", "kotor")
+                val foundWord = criticalWords.find { content.contains(it, ignoreCase = true) }
+                if (foundWord != null) {
+                    newReview.followUpStatus = "belum_diproses"
+                }
                 MockData.addReview(newReview)
                 
+                // Trigger notification simulation
+                triggerReviewNotifications(studentName, content)
+
                 // Refresh list
                 reviewsList.clear()
                 reviewsList.addAll(MockData.getReviewsForSchool(studentSchoolId))
@@ -210,7 +218,15 @@ class SiswaReviewViewModel(application: Application) : AndroidViewModel(applicat
                             content = content,
                             photo = reviewDto?.photo ?: capturedImageUri?.lastPathSegment
                         )
+                        val criticalWords = listOf("basi", "bau", "busuk", "kotor")
+                        val foundWord = criticalWords.find { content.contains(it, ignoreCase = true) }
+                        if (foundWord != null) {
+                            newReview.followUpStatus = "belum_diproses"
+                        }
                         MockData.addReview(newReview)
+
+                        // Trigger notification simulation
+                        triggerReviewNotifications(studentName, content)
 
                         reviewsList.clear()
                         reviewsList.addAll(MockData.getReviewsForSchool(studentSchoolId))
@@ -230,6 +246,20 @@ class SiswaReviewViewModel(application: Application) : AndroidViewModel(applicat
                     isSubmitting = false
                 }
             }
+        }
+    }
+
+    private fun triggerReviewNotifications(studentName: String, content: String) {
+        val context = getApplication<Application>().applicationContext
+        
+        // 1. Trigger Guru notification
+        com.halombg.mobile.data.NotificationHelper.showGuruNewReviewNotification(context, studentName, content)
+
+        // 2. Trigger SPPG alert if critical keyword is matched
+        val criticalWords = listOf("basi", "bau", "busuk", "kotor")
+        val foundWord = criticalWords.find { content.contains(it, ignoreCase = true) }
+        if (foundWord != null) {
+            com.halombg.mobile.data.NotificationHelper.showSppgEmergencyNotification(context, studentName, foundWord, content)
         }
     }
 
