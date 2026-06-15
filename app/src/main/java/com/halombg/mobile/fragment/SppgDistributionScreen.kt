@@ -9,7 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material.icons.outlined.Check
-import androidx.compose.material.icons.outlined.Refresh
+import androidx.compose.material.icons.outlined.SoupKitchen
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -123,7 +123,7 @@ fun DistributionCard(
             ) {
                 StatusButton(
                     label = "Masak",
-                    icon = Icons.Outlined.Refresh,
+                    icon = Icons.Outlined.SoupKitchen,
                     active = status.status == "belum_diantar",
                     color = StatusWarning,
                     onClick = { onUpdateStatus("belum_diantar") },
