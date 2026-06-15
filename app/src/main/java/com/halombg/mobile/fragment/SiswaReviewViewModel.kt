@@ -1,6 +1,10 @@
 package com.halombg.mobile.fragment
 
 import android.app.Application
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
+import android.util.Base64
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -11,10 +15,13 @@ import com.halombg.mobile.data.AuthRepository
 import com.halombg.mobile.data.MockData
 import com.halombg.mobile.data.api.NetworkModule
 import com.halombg.mobile.data.api.ProfileDto
+import com.halombg.mobile.data.api.ReviewRequest
 import com.halombg.mobile.model.DailyMenu
 import com.halombg.mobile.model.Review
 import kotlinx.coroutines.launch
+import java.io.ByteArrayOutputStream
 import java.io.IOException
+import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -37,6 +44,7 @@ class SiswaReviewViewModel(application: Application) : AndroidViewModel(applicat
     // Inputs
     var reviewContent by mutableStateOf("")
     var simulatedPhotoName by mutableStateOf<String?>(null)
+    var capturedImageUri by mutableStateOf<Uri?>(null)
 
     var isLoading by mutableStateOf(false)
         private set
@@ -120,6 +128,27 @@ class SiswaReviewViewModel(application: Application) : AndroidViewModel(applicat
         }
     }
 
+    private fun convertUriToBase64(uri: Uri): String? {
+        return try {
+            val contentResolver = getApplication<Application>().contentResolver
+            val inputStream: InputStream? = contentResolver.openInputStream(uri)
+            val bitmap = BitmapFactory.decodeStream(inputStream)
+            inputStream?.close()
+            
+            if (bitmap != null) {
+                val outputStream = ByteArrayOutputStream()
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 80, outputStream)
+                val bytes = outputStream.toByteArray()
+                Base64.encodeToString(bytes, Base64.NO_WRAP)
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
     fun submitReview() {
         errorMessage = null
         successMessage = null
@@ -143,7 +172,7 @@ class SiswaReviewViewModel(application: Application) : AndroidViewModel(applicat
                     schoolName = MockData.schools.find { it.id == studentSchoolId }?.name ?: "Sekolah",
                     reviewDate = today,
                     content = content,
-                    photo = simulatedPhotoName
+                    photo = simulatedPhotoName ?: capturedImageUri?.lastPathSegment
                 )
                 MockData.addReview(newReview)
                 
@@ -154,38 +183,64 @@ class SiswaReviewViewModel(application: Application) : AndroidViewModel(applicat
                 // Reset
                 reviewContent = ""
                 simulatedPhotoName = null
+                capturedImageUri = null
                 successMessage = "Ulasan berhasil dikirim!"
                 isSubmitting = false
             } else {
-                // For this phase, if connected to API, we post locally or simulate posting
-                // since MOB-02 is partially focused on profile and autologin for now.
-                // We'll post it locally to the MockData database but flag it as success.
-                val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-                val newReview = Review(
-                    id = (MockData.reviews.maxOfOrNull { it.id } ?: 0L) + 1,
-                    userId = "siswa_1",
-                    userName = studentName,
-                    schoolId = studentSchoolId,
-                    schoolName = MockData.schools.find { it.id == studentSchoolId }?.name ?: "Sekolah",
-                    reviewDate = today,
-                    content = content,
-                    photo = simulatedPhotoName
-                )
-                MockData.addReview(newReview)
+                try {
+                    val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+                    val base64Image = capturedImageUri?.let { convertUriToBase64(it) }
 
-                reviewsList.clear()
-                reviewsList.addAll(MockData.getReviewsForSchool(studentSchoolId))
+                    val request = ReviewRequest(
+                        content = content,
+                        reviewDate = today,
+                        photo = base64Image
+                    )
 
-                reviewContent = ""
-                simulatedPhotoName = null
-                successMessage = "Ulasan berhasil disimpan secara lokal!"
-                isSubmitting = false
+                    val response = apiService.postSiswaReview(request)
+                    if (response.isSuccessful) {
+                        val reviewDto = response.body()?.review
+                        val newReview = Review(
+                            id = reviewDto?.id ?: ((MockData.reviews.maxOfOrNull { it.id } ?: 0L) + 1),
+                            userId = "siswa_1",
+                            userName = studentName,
+                            schoolId = studentSchoolId,
+                            schoolName = MockData.schools.find { it.id == studentSchoolId }?.name ?: "Sekolah",
+                            reviewDate = today,
+                            content = content,
+                            photo = reviewDto?.photo ?: capturedImageUri?.lastPathSegment
+                        )
+                        MockData.addReview(newReview)
+
+                        reviewsList.clear()
+                        reviewsList.addAll(MockData.getReviewsForSchool(studentSchoolId))
+
+                        reviewContent = ""
+                        capturedImageUri = null
+                        simulatedPhotoName = null
+                        successMessage = "Ulasan berhasil dikirim ke server!"
+                    } else {
+                        errorMessage = "Gagal mengirim ulasan: ${response.message()}"
+                    }
+                } catch (e: IOException) {
+                    errorMessage = "Kesalahan jaringan: Gagal terhubung ke server."
+                } catch (e: Exception) {
+                    errorMessage = "Terjadi kesalahan: ${e.localizedMessage ?: "Unknown Error"}"
+                } finally {
+                    isSubmitting = false
+                }
             }
         }
     }
 
     fun simulatePhoto() {
         simulatedPhotoName = "makan_siswa_${System.currentTimeMillis() / 1000}.jpg"
+        capturedImageUri = null
+    }
+
+    fun clearPhoto() {
+        simulatedPhotoName = null
+        capturedImageUri = null
     }
 
     fun deleteReview(review: Review) {

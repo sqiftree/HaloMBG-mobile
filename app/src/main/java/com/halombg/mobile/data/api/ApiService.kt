@@ -61,6 +61,27 @@ data class UpdateSppgProfileRequest(
     val description: String?
 )
 
+data class ReviewRequest(
+    val content: String,
+    @SerializedName("review_date") val reviewDate: String,
+    val photo: String? = null // Base64 image
+)
+
+data class ReviewResponse(
+    val status: String,
+    val message: String,
+    val review: ReviewDto?
+)
+
+data class ReviewDto(
+    val id: Long,
+    @SerializedName("user_id") val userId: Long,
+    @SerializedName("school_id") val schoolId: Long,
+    val content: String,
+    @SerializedName("review_date") val reviewDate: String,
+    val photo: String?
+)
+
 interface ApiService {
 
     @POST("login")
@@ -81,4 +102,9 @@ interface ApiService {
 
     @GET("siswa/sppg-info")
     suspend fun getSiswaSppgInfo(): Response<ProfileDto>
+
+    @POST("siswa/reviews")
+    suspend fun postSiswaReview(
+        @Body request: ReviewRequest
+    ): Response<ReviewResponse>
 }
