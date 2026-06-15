@@ -113,7 +113,7 @@ object MockData {
         reviews.add(
             Review(
                 id = 1L,
-                userId = "siswa_1",
+                userId = "ahmad.dani@halombg.go.id",
                 userName = "Ahmad Dani",
                 schoolId = 1L,
                 schoolName = "SD Negeri 1 Jaya",
@@ -174,6 +174,13 @@ object MockData {
 
     fun addReview(review: Review) {
         reviews.add(0, review) // insert at top
+    }
+
+    fun updateReviewFlagStatus(reviewId: Long, status: String) {
+        val index = reviews.indexOfFirst { it.id == reviewId }
+        if (index != -1) {
+            reviews[index] = reviews[index].copy(flagStatus = status)
+        }
     }
 
     fun addDailyMenu(menu: DailyMenu) {
