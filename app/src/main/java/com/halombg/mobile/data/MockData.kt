@@ -113,7 +113,7 @@ object MockData {
         reviews.add(
             Review(
                 id = 1L,
-                userId = "siswa_1",
+                userId = "ahmad.dani@halombg.go.id",
                 userName = "Ahmad Dani",
                 schoolId = 1L,
                 schoolName = "SD Negeri 1 Jaya",

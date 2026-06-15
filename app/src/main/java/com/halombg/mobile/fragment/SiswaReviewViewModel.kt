@@ -56,10 +56,18 @@ class SiswaReviewViewModel(application: Application) : AndroidViewModel(applicat
     var successMessage by mutableStateOf<String?>(null)
 
     val isSimulationMode = authRepository.isSimulationMode()
-    private val studentSchoolId = 1L // Mock SD Negeri 1 Jaya
+    private val studentSchoolId = authRepository.getSchoolId()
     private val studentName = authRepository.getUserName() ?: "Ahmad Dani"
+    
+    val currentUserEmail: String
+        get() = authRepository.getUserEmail()?.trim() ?: ""
 
     fun loadData() {
+        if (studentSchoolId == -1L) {
+            errorMessage = "Data sekolah tidak ditemukan. Silakan login ulang."
+            isLoading = false
+            return
+        }
         errorMessage = null
         isLoading = true
 
@@ -154,8 +162,13 @@ class SiswaReviewViewModel(application: Application) : AndroidViewModel(applicat
         successMessage = null
 
         val content = reviewContent.trim()
+        if (content.isEmpty()) {
+            errorMessage = "Ulasan tidak boleh kosong"
+            return
+        }
+        
         if (content.length < 10) {
-            errorMessage = "Ulasan minimal 10 karakter"
+            errorMessage = "Ulasan terlalu pendek (minimal 10 karakter)"
             return
         }
 
@@ -166,7 +179,7 @@ class SiswaReviewViewModel(application: Application) : AndroidViewModel(applicat
                 val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
                 val newReview = Review(
                     id = (MockData.reviews.maxOfOrNull { it.id } ?: 0L) + 1,
-                    userId = "siswa_1",
+                    userId = currentUserEmail,
                     userName = studentName,
                     schoolId = studentSchoolId,
                     schoolName = MockData.schools.find { it.id == studentSchoolId }?.name ?: "Sekolah",
@@ -202,7 +215,7 @@ class SiswaReviewViewModel(application: Application) : AndroidViewModel(applicat
                         val reviewDto = response.body()?.review
                         val newReview = Review(
                             id = reviewDto?.id ?: ((MockData.reviews.maxOfOrNull { it.id } ?: 0L) + 1),
-                            userId = "siswa_1",
+                            userId = currentUserEmail,
                             userName = studentName,
                             schoolId = studentSchoolId,
                             schoolName = MockData.schools.find { it.id == studentSchoolId }?.name ?: "Sekolah",
@@ -244,8 +257,13 @@ class SiswaReviewViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     fun deleteReview(review: Review) {
+        if (!review.userId.equals(currentUserEmail, ignoreCase = true)) {
+            errorMessage = "Anda tidak memiliki akses untuk menghapus ulasan ini"
+            return
+        }
         MockData.reviews.remove(review)
         reviewsList.remove(review)
         successMessage = "Ulasan berhasil dihapus"
     }
+
 }

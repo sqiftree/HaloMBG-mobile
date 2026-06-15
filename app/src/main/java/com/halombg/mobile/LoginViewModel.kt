@@ -102,9 +102,17 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
                         // Save details
                         authRepository.saveToken(data.token ?: "")
-                        authRepository.saveUserRole(mapRoleFromApi(user.role))
+                        val mappedRole = mapRoleFromApi(user.role)
+                        authRepository.saveUserRole(mappedRole)
                         authRepository.saveUserEmail(user.email)
                         authRepository.saveUserName(user.name)
+                        
+                        // Save school ID if user is Siswa or Guru
+                        if (mappedRole == "Siswa" || mappedRole == "Guru") {
+                            // In real app, this would come from API. For now mock based on role or data
+                            authRepository.saveSchoolId(1L) 
+                        }
+                        
                         authRepository.saveSimulationMode(false)
 
                         userRoleForNavigation = authRepository.getUserRole()
@@ -146,6 +154,11 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
             else -> "User"
         }
 
+        // Mock School ID for Siswa/Guru in simulation
+        if (role == "Siswa" || role == "Guru") {
+            authRepository.saveSchoolId(1L) // Default to SD Negeri 1 Jaya
+        }
+
         authRepository.clearToken() // No server token in simulation
         authRepository.saveUserRole(role)
         authRepository.saveUserEmail(email)
@@ -160,9 +173,9 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     private fun mapRoleFromApi(apiRole: String): String {
         return when (apiRole.lowercase()) {
             "siswa" -> "Siswa"
-            "sppg" -> "SPPG (Dapur)"
+            "sppg", "sppg (dapur)", "dapur" -> "SPPG (Dapur)"
             "guru" -> "Guru"
-            else -> "Siswa"
+            else -> "Siswa" // Default safe fallback
         }
     }
 

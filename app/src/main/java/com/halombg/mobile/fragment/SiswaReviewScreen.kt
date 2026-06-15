@@ -536,6 +536,7 @@ fun SiswaReviewScreen(
                     items(viewModel.reviewsList) { review ->
                         ReviewItemRow(
                             review = review,
+                            isOwnReview = review.userId.equals(viewModel.currentUserEmail, ignoreCase = true),
                             onDelete = { viewModel.deleteReview(review) }
                         )
                     }
@@ -550,7 +551,7 @@ fun SiswaReviewScreen(
 }
 
 @Composable
-fun ReviewItemRow(review: Review, onDelete: () -> Unit) {
+fun ReviewItemRow(review: Review, isOwnReview: Boolean, onDelete: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(8.dp), // 8dp card corners
@@ -570,29 +571,34 @@ fun ReviewItemRow(review: Review, onDelete: () -> Unit) {
                     fontWeight = FontWeight.Medium
                 )
                 
-                // Show flagged badge if review is flagged
-                if (review.flagStatus == "flagged") {
-                    Surface(
-                        shape = RoundedCornerShape(4.dp), // 4dp corners
-                        color = Color(0xFFFFEBEE)
-                    ) {
-                        Text(
-                            text = "FLAGGED",
-                            color = StatusError,
-                            fontSize = 8.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
-                        )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    // Show flagged badge if review is flagged
+                    if (review.flagStatus == "flagged") {
+                        Surface(
+                            shape = RoundedCornerShape(4.dp), // 4dp corners
+                            color = Color(0xFFFFEBEE),
+                            modifier = Modifier.padding(end = 8.dp)
+                        ) {
+                            Text(
+                                text = "FLAGGED",
+                                color = StatusError,
+                                fontSize = 8.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
+                            )
+                        }
                     }
-                }
 
-                IconButton(onClick = onDelete, modifier = Modifier.size(24.dp)) {
-                    Icon(
-                        imageVector = Icons.Outlined.Delete,
-                        contentDescription = "Hapus",
-                        tint = StatusError,
-                        modifier = Modifier.size(16.dp)
-                    )
+                    if (isOwnReview) {
+                        IconButton(onClick = onDelete, modifier = Modifier.size(24.dp)) {
+                            Icon(
+                                imageVector = Icons.Outlined.Delete,
+                                contentDescription = "Hapus",
+                                tint = StatusError,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    }
                 }
             }
             Spacer(modifier = Modifier.height(4.dp))
