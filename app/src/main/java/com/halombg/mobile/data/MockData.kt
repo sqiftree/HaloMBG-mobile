@@ -100,13 +100,13 @@ object MockData {
 
         // 4. MOCK DISTRIBUTION STATUS
         distributionStatuses.add(
-            DistributionStatus(1L, 1L, 1L, "SD Negeri 1 Jaya", today, "sudah_diantar", "Hari ini, 10:30")
+            DistributionStatus(1L, 1L, 1L, "SD Negeri 1 Jaya", today, "sudah_diantar", "Hari ini, 10:30", null)
         )
         distributionStatuses.add(
-            DistributionStatus(2L, 1L, 2L, "SMP Negeri 2", today, "siap_diantar", "Hari ini, 09:15")
+            DistributionStatus(2L, 1L, 2L, "SMP Negeri 2", today, "siap_diantar", "Hari ini, 09:15", null)
         )
         distributionStatuses.add(
-            DistributionStatus(3L, 2L, 3L, "SMA Negeri 3", today, "belum_diantar", "Hari ini, 07:00")
+            DistributionStatus(3L, 2L, 3L, "SMA Negeri 3", today, "belum_diantar", "Hari ini, 07:00", null)
         )
 
         // 5. MOCK REVIEWS
@@ -186,12 +186,13 @@ object MockData {
         return distributionStatuses.filter { it.sppgId == sppgId }
     }
 
-    fun updateDistributionStatus(sppgId: Long, schoolId: Long, status: String) {
+    fun updateDistributionStatus(sppgId: Long, schoolId: Long, status: String, photo: String? = null) {
         val dist = distributionStatuses.find { it.sppgId == sppgId && it.schoolId == schoolId }
         val timeNow = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
         if (dist != null) {
             dist.status = status
             dist.statusUpdatedAt = "Hari ini, $timeNow"
+            dist.photo = photo
         } else {
             val school = schools.find { it.id == schoolId }
             val newId = (distributionStatuses.maxOfOrNull { it.id } ?: 0L) + 1
@@ -203,7 +204,8 @@ object MockData {
                     schoolName = school?.name ?: "Sekolah",
                     distributedAt = getTodayDateString(),
                     status = status,
-                    statusUpdatedAt = "Hari ini, $timeNow"
+                    statusUpdatedAt = "Hari ini, $timeNow",
+                    photo = photo
                 )
             )
         }

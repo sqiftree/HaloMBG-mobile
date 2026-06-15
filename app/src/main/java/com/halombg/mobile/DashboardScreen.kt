@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 import com.halombg.mobile.fragment.SiswaReviewScreen
 import com.halombg.mobile.fragment.SppgProfileScreen
+import com.halombg.mobile.fragment.SppgDistribusiScreen
 import com.halombg.mobile.fragment.ValidasiAiScreen
 import com.halombg.mobile.ui.theme.*
 
@@ -113,6 +114,7 @@ fun DashboardScreen(
                 "Beranda" -> BerandaScreen()
                 "Profil Dapur" -> SppgProfileScreen()
                 "Ulasan" -> SiswaReviewScreen()
+                "Distribusi" -> SppgDistribusiScreen()
                 else -> {
                     // Placeholder for other screens until they are migrated
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
