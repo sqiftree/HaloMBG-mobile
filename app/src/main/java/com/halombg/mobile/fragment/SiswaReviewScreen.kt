@@ -314,7 +314,7 @@ fun SiswaReviewScreen(
                 // Input Section
                 item {
                     Text(
-                        text = "KIRIM ULASAN ANDA",
+                        text = if (viewModel.editingReviewId != null) "EDIT ULASAN ANDA" else "KIRIM ULASAN ANDA",
                         color = PrimaryNavy,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold
@@ -462,17 +462,32 @@ fun SiswaReviewScreen(
                                     }
                                 }
 
-                                Button(
-                                    onClick = { viewModel.submitReview() },
-                                    enabled = !viewModel.isSubmitting,
-                                    colors = ButtonDefaults.buttonColors(containerColor = PrimaryNavy),
-                                    shape = RoundedCornerShape(8.dp),
-                                    contentPadding = PaddingValues(horizontal = 24.dp, vertical = 8.dp)
-                                ) {
-                                    if (viewModel.isSubmitting) {
-                                        CircularProgressIndicator(modifier = Modifier.size(16.dp), color = Color.White, strokeWidth = 2.dp)
-                                    } else {
-                                        Text("Kirim Ulasan", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    if (viewModel.editingReviewId != null) {
+                                        TextButton(
+                                            onClick = { viewModel.cancelEditing() },
+                                            modifier = Modifier.padding(end = 8.dp)
+                                        ) {
+                                            Text("Batal", fontSize = 13.sp, color = TextSecondary, fontWeight = FontWeight.Bold)
+                                        }
+                                    }
+
+                                    Button(
+                                        onClick = { viewModel.submitReview() },
+                                        enabled = !viewModel.isSubmitting,
+                                        colors = ButtonDefaults.buttonColors(containerColor = PrimaryNavy),
+                                        shape = RoundedCornerShape(8.dp),
+                                        contentPadding = PaddingValues(horizontal = 24.dp, vertical = 8.dp)
+                                    ) {
+                                        if (viewModel.isSubmitting) {
+                                            CircularProgressIndicator(modifier = Modifier.size(16.dp), color = Color.White, strokeWidth = 2.dp)
+                                        } else {
+                                            Text(
+                                                text = if (viewModel.editingReviewId != null) "Simpan" else "Kirim Ulasan",
+                                                fontSize = 13.sp,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -534,9 +549,11 @@ fun SiswaReviewScreen(
                     }
                 } else {
                     items(viewModel.reviewsList) { review ->
+                        val isOwnReview = review.userId.equals(viewModel.currentUserEmail, ignoreCase = true)
                         ReviewItemRow(
                             review = review,
-                            isOwnReview = review.userId.equals(viewModel.currentUserEmail, ignoreCase = true),
+                            isOwnReview = isOwnReview,
+                            onEdit = { viewModel.startEditing(review) },
                             onDelete = { viewModel.deleteReview(review) }
                         )
                     }
@@ -551,7 +568,12 @@ fun SiswaReviewScreen(
 }
 
 @Composable
-fun ReviewItemRow(review: Review, isOwnReview: Boolean, onDelete: () -> Unit) {
+fun ReviewItemRow(
+    review: Review,
+    isOwnReview: Boolean,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(8.dp), // 8dp card corners
@@ -590,6 +612,15 @@ fun ReviewItemRow(review: Review, isOwnReview: Boolean, onDelete: () -> Unit) {
                     }
 
                     if (isOwnReview) {
+                        IconButton(onClick = onEdit, modifier = Modifier.size(24.dp)) {
+                            Icon(
+                                imageVector = Icons.Outlined.Edit,
+                                contentDescription = "Edit",
+                                tint = PrimaryNavy,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(4.dp))
                         IconButton(onClick = onDelete, modifier = Modifier.size(24.dp)) {
                             Icon(
                                 imageVector = Icons.Outlined.Delete,
@@ -599,7 +630,6 @@ fun ReviewItemRow(review: Review, isOwnReview: Boolean, onDelete: () -> Unit) {
                             )
                         }
                     }
-                }
             }
             Spacer(modifier = Modifier.height(4.dp))
             Text(
