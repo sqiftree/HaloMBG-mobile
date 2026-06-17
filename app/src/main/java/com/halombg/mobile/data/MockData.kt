@@ -113,7 +113,7 @@ object MockData {
         reviews.add(
             Review(
                 id = 1L,
-                userId = "siswa_1",
+                userId = "ahmad.dani@halombg.go.id",
                 userName = "Ahmad Dani",
                 schoolId = 1L,
                 schoolName = "SD Negeri 1 Jaya",
@@ -176,6 +176,13 @@ object MockData {
         reviews.add(0, review) // insert at top
     }
 
+    fun updateReviewFlagStatus(reviewId: Long, status: String) {
+        val index = reviews.indexOfFirst { it.id == reviewId }
+        if (index != -1) {
+            reviews[index] = reviews[index].copy(flagStatus = status)
+        }
+    }
+
     fun addDailyMenu(menu: DailyMenu) {
         // Remove existing menu for the same sppg and date if exists
         dailyMenus.removeAll { it.sppgId == menu.sppgId && it.servedAt == menu.servedAt }
@@ -187,11 +194,14 @@ object MockData {
     }
 
     fun updateDistributionStatus(sppgId: Long, schoolId: Long, status: String) {
-        val dist = distributionStatuses.find { it.sppgId == sppgId && it.schoolId == schoolId }
+        val index = distributionStatuses.indexOfFirst { it.sppgId == sppgId && it.schoolId == schoolId }
         val timeNow = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
-        if (dist != null) {
-            dist.status = status
-            dist.statusUpdatedAt = "Hari ini, $timeNow"
+        if (index != -1) {
+            val dist = distributionStatuses[index]
+            distributionStatuses[index] = dist.copy(
+                status = status,
+                statusUpdatedAt = "Hari ini, $timeNow"
+            )
         } else {
             val school = schools.find { it.id == schoolId }
             val newId = (distributionStatuses.maxOfOrNull { it.id } ?: 0L) + 1

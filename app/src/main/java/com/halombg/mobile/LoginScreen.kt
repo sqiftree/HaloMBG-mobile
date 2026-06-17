@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.halombg.mobile.ui.theme.*
+import com.halombg.mobile.ui.Logo
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,7 +47,7 @@ fun LoginScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Surface2) // Flat Surface2 background (#F8F7F5)
+            .background(PrimaryNavy) // Premium PrimaryNavy background
             .padding(24.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -56,16 +57,23 @@ fun LoginScreen(
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
         ) {
-            Text(
-                text = "HaloMBG",
-                color = PrimaryNavy,
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                fontFamily = FontFamily.SansSerif
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Logo(size = 36.dp)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "HaloMBG",
+                    color = Color.White,
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = FontFamily.SansSerif
+                )
+            }
             Text(
                 text = "Portal Monitoring Program Makan Bergizi",
-                color = TextSecondary,
+                color = AccentPastelBlue,
                 fontSize = 14.sp,
                 modifier = Modifier.padding(top = 4.dp)
             )
@@ -74,7 +82,7 @@ fun LoginScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 32.dp),
-                shape = RoundedCornerShape(8.dp), // Card radius 8dp per DESIGN.md
+                shape = RoundedCornerShape(16.dp), // Premium Card radius 16dp matching web app's radius-xl
                 colors = CardDefaults.cardColors(containerColor = Surface1), // Surface1 (#FFFFFF)
                 border = androidx.compose.foundation.BorderStroke(1.dp, BorderDefault)
             ) {
