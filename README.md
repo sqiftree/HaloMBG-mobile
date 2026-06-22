@@ -67,3 +67,36 @@ Untuk detail spesifikasi teknis dan perencanaan jadwal kerja, silakan merujuk ke
 4. Hubungkan perangkat fisik Android dengan mode debugging aktif (USB Debugging), atau jalankan Emulator Android (min SDK 24 / Android 7.0).
 5. Klik tombol **Run** (Ikon Play hijau) untuk mengompilasi dan menginstal aplikasi di perangkat Anda.
 
+---
+
+## Panduan Pengguna (User Manual)
+
+### 1. Peran: Siswa (Portal Ulasan)
+* **Tujuan:** Siswa mengirimkan penilaian makanan harian dan melampirkan foto makanan yang diterima di sekolah.
+* **Cara Menggunakan:**
+  1. Masuk ke aplikasi menggunakan akun email berdomain siswa (misal: `siswa@halombg.com`).
+  2. Buka tab **Ulasan** di bagian bawah.
+  3. Tekan tombol **Ambil Foto** untuk menjepret foto makanan secara native (atau gunakan tombol **Simulasi** jika menguji secara offline).
+  4. Ketik ulasan minimal 10 karakter pada kolom teks, lalu klik **Kirim Ulasan**.
+  5. Ulasan yang sukses dikirim akan langsung tertera pada daftar **Riwayat Ulasan Sekolah** di bagian bawah.
+
+### 2. Peran: Guru (Moderasi)
+* **Tujuan:** Guru memantau semua umpan balik/ulasan dari siswa di sekolah bersangkutan dan menandai ulasan tidak pantas.
+* **Cara Menggunakan:**
+  1. Masuk ke aplikasi menggunakan akun email berdomain guru (misal: `guru@halombg.com`).
+  2. Buka tab **Moderasi** di bagian bawah.
+  3. Pantau daftar ulasan siswa. Klik tombol **Flag Ulasan** untuk menandai ulasan kasar/salah secara cepat (akan memunculkan lencana merah "FLAGGED" dan mengubah garis batas menjadi merah).
+
+### 3. Peran: SPPG / Dapur (Jadwal Distribusi & Tindak Lanjut)
+* **Tujuan:** Kurir/Operator SPPG memantau antrean pengantaran makanan harian, mengunggah bukti foto serah terima, serta menanggapi keluhan ulasan kritis.
+* **Cara Menggunakan:**
+  * **Jadwal Distribusi:**
+    1. Masuk menggunakan akun email SPPG (misal: `sppg@halombg.com`).
+    2. Arahkan ke tab **Distribusi**.
+    3. Pilih sekolah dari daftar antrean harian untuk membuka lembar konfirmasi.
+    4. Ambil foto bukti serah terima secara langsung dengan tombol **Ambil Bukti Foto**, ubah status pengiriman (Belum/Siap/Sudah/Batal), lalu simpan bukti.
+  * **Tindak Lanjut Ulasan Kritis:**
+    1. Buka tab **Ulasan Kritis** di bagian bawah.
+    2. Semua ulasan yang terdeteksi mengandung keluhan gizi (*basi, bau, busuk, kotor*) atau ditandai guru secara otomatis tersaring di sini.
+    3. Ubah status penanganan di bagian bawah kartu ulasan (**Belum / Proses / Selesai**) sesuai perkembangan tindakan di lapangan.
+
