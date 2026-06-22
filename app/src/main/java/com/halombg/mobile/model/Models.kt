@@ -47,7 +47,8 @@ data class DistributionStatus(
     val schoolName: String,
     val distributedAt: String, // format YYYY-MM-DD
     var status: String, // belum_diantar, siap_diantar, sudah_diantar, batal
-    var statusUpdatedAt: String
+    var statusUpdatedAt: String,
+    var photo: String? = null // base64 or drawable name
 ) : Serializable
 
 data class Review(

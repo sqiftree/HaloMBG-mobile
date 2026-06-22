@@ -82,6 +82,22 @@ data class ReviewDto(
     val photo: String?
 )
 
+data class DistributionStatusDto(
+    val id: Long,
+    @SerializedName("sppg_id") val sppgId: Long,
+    @SerializedName("school_id") val schoolId: Long,
+    @SerializedName("school_name") val schoolName: String,
+    @SerializedName("distributed_at") val distributedAt: String,
+    val status: String,
+    @SerializedName("status_updated_at") val statusUpdatedAt: String,
+    val photo: String?
+)
+
+data class UpdateDistributionRequest(
+    val status: String,
+    val photo: String? = null // Base64 image
+)
+
 interface ApiService {
 
     @POST("login")
@@ -107,4 +123,15 @@ interface ApiService {
     suspend fun postSiswaReview(
         @Body request: ReviewRequest
     ): Response<ReviewResponse>
+
+    @GET("sppg/distribution")
+    suspend fun getSppgDistributions(
+        @Query("date") date: String
+    ): Response<List<DistributionStatusDto>>
+
+    @PUT("sppg/distribution/{id}")
+    suspend fun updateDistributionStatus(
+        @Path("id") id: Long,
+        @Body request: UpdateDistributionRequest
+    ): Response<DistributionStatusDto>
 }

@@ -25,8 +25,10 @@ import com.halombg.mobile.data.AuthRepository
 import com.halombg.mobile.data.MockData
 import com.halombg.mobile.fragment.GuruModerationScreen
 import com.halombg.mobile.fragment.SiswaReviewScreen
+import com.halombg.mobile.fragment.SppgDistribusiScreen
 import com.halombg.mobile.fragment.SppgDistributionScreen
 import com.halombg.mobile.fragment.SppgProfileScreen
+import com.halombg.mobile.fragment.ValidasiAiScreen
 import com.halombg.mobile.ui.StatusBadge
 import com.halombg.mobile.ui.theme.*
 import java.text.SimpleDateFormat
@@ -136,7 +138,7 @@ fun DashboardScreen(
                 "Profil Dapur" -> SppgProfileScreen()
                 "Ulasan" -> SiswaReviewScreen()
                 "Moderasi" -> GuruModerationScreen()
-                "Distribusi" -> SppgDistributionScreen()
+                "Distribusi" -> SppgDistribusiScreen()
                 else -> {
                     // Placeholder for other screens until they are migrated
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
