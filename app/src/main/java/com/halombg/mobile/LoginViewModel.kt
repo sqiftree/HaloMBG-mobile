@@ -9,8 +9,10 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.halombg.mobile.data.AuthRepository
 import com.halombg.mobile.data.api.LoginRequest
+import com.halombg.mobile.data.api.LoginResponse
 import com.halombg.mobile.data.api.NetworkModule
 import kotlinx.coroutines.launch
+import retrofit2.Response
 import java.io.IOException
 
 class LoginViewModel(application: Application) : AndroidViewModel(application) {
@@ -83,7 +85,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                 performSimulationLogin(emailTrimmed, inferredRole)
             } else {
                 try {
-                    val response = apiService.login(LoginRequest(emailTrimmed, passwordTrimmed))
+                    val response: Response<LoginResponse> = apiService.login(LoginRequest(emailTrimmed, passwordTrimmed))
                     if (response.isSuccessful && response.body() != null) {
                         val data = response.body()!!
                         val user = data.user
