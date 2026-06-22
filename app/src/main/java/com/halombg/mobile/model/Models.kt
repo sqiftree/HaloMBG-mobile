@@ -61,5 +61,6 @@ data class Review(
     val content: String,
     var flagStatus: String = "none", // none, flagged, deleted
     var flagReason: String? = null,
-    val photo: String? = null // base64 or drawable name
+    val photo: String? = null, // base64 or drawable name
+    var followUpStatus: String = "none" // none, belum_diproses, dalam_proses, selesai
 ) : Serializable

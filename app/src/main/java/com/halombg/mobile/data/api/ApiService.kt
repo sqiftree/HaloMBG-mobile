@@ -98,6 +98,22 @@ data class UpdateDistributionRequest(
     val photo: String? = null // Base64 image
 )
 
+data class FlagReviewResponse(
+    val status: String,
+    val message: String,
+    val review: ReviewDto?
+)
+
+data class FollowUpRequest(
+    val status: String // belum_diproses, dalam_proses, selesai
+)
+
+data class FollowUpResponse(
+    val status: String,
+    val message: String,
+    val review: ReviewDto?
+)
+
 interface ApiService {
 
     @POST("login")
@@ -134,4 +150,18 @@ interface ApiService {
         @Path("id") id: Long,
         @Body request: UpdateDistributionRequest
     ): Response<DistributionStatusDto>
+
+    @GET("guru/reviews")
+    suspend fun getGuruReviews(): Response<List<ReviewDto>>
+
+    @POST("guru/reviews/{id}/flag")
+    suspend fun flagReview(
+        @Path("id") id: Long
+    ): Response<FlagReviewResponse>
+
+    @POST("sppg/reviews/{id}/follow-up")
+    suspend fun updateFollowUpStatus(
+        @Path("id") id: Long,
+        @Body request: FollowUpRequest
+    ): Response<FollowUpResponse>
 }

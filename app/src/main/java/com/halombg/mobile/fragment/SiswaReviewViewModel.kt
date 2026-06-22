@@ -190,10 +190,14 @@ class SiswaReviewViewModel(application: Application) : AndroidViewModel(applicat
                     val index = MockData.reviews.indexOfFirst { it.id == editingReviewId }
                     if (index != -1) {
                         val oldReview = MockData.reviews[index]
+                        val criticalWords = listOf("basi", "bau", "busuk", "kotor")
+                        val foundWord = criticalWords.find { content.contains(it, ignoreCase = true) }
+                        val followUp = if (foundWord != null) "belum_diproses" else oldReview.followUpStatus
                         MockData.reviews[index] = oldReview.copy(
                             userId = currentUserEmail,
                             content = content,
-                            photo = simulatedPhotoName ?: capturedImageUri?.lastPathSegment
+                            photo = simulatedPhotoName ?: capturedImageUri?.lastPathSegment,
+                            followUpStatus = followUp
                         )
                     }
                 } else {
@@ -207,9 +211,17 @@ class SiswaReviewViewModel(application: Application) : AndroidViewModel(applicat
                         content = content,
                         photo = simulatedPhotoName ?: capturedImageUri?.lastPathSegment
                     )
+                    val criticalWords = listOf("basi", "bau", "busuk", "kotor")
+                    val foundWord = criticalWords.find { content.contains(it, ignoreCase = true) }
+                    if (foundWord != null) {
+                        newReview.followUpStatus = "belum_diproses"
+                    }
                     MockData.addReview(newReview)
                 }
                 
+                // Trigger notification simulation
+                triggerReviewNotifications(studentName, content)
+
                 // Refresh list
                 reviewsList.clear()
                 reviewsList.addAll(MockData.getReviewsForSchool(studentSchoolId))
@@ -229,10 +241,14 @@ class SiswaReviewViewModel(application: Application) : AndroidViewModel(applicat
                         val index = MockData.reviews.indexOfFirst { it.id == editingReviewId }
                         if (index != -1) {
                             val oldReview = MockData.reviews[index]
+                            val criticalWords = listOf("basi", "bau", "busuk", "kotor")
+                            val foundWord = criticalWords.find { content.contains(it, ignoreCase = true) }
+                            val followUp = if (foundWord != null) "belum_diproses" else oldReview.followUpStatus
                             MockData.reviews[index] = oldReview.copy(
                                 userId = currentUserEmail,
                                 content = content,
-                                photo = simulatedPhotoName ?: capturedImageUri?.lastPathSegment
+                                photo = simulatedPhotoName ?: capturedImageUri?.lastPathSegment,
+                                followUpStatus = followUp
                             )
                         }
                         reviewsList.clear()
@@ -265,7 +281,15 @@ class SiswaReviewViewModel(application: Application) : AndroidViewModel(applicat
                                 content = content,
                                 photo = reviewDto?.photo ?: capturedImageUri?.lastPathSegment
                             )
+                            val criticalWords = listOf("basi", "bau", "busuk", "kotor")
+                            val foundWord = criticalWords.find { content.contains(it, ignoreCase = true) }
+                            if (foundWord != null) {
+                                newReview.followUpStatus = "belum_diproses"
+                            }
                             MockData.addReview(newReview)
+
+                            // Trigger notification simulation
+                            triggerReviewNotifications(studentName, content)
 
                             reviewsList.clear()
                             reviewsList.addAll(MockData.getReviewsForSchool(studentSchoolId))
@@ -289,6 +313,20 @@ class SiswaReviewViewModel(application: Application) : AndroidViewModel(applicat
         }
     }
 
+    private fun triggerReviewNotifications(studentName: String, content: String) {
+        val context = getApplication<Application>().applicationContext
+        
+        // 1. Trigger Guru notification
+        com.halombg.mobile.data.NotificationHelper.showGuruNewReviewNotification(context, studentName, content)
+
+        // 2. Trigger SPPG alert if critical keyword is matched
+        val criticalWords = listOf("basi", "bau", "busuk", "kotor")
+        val foundWord = criticalWords.find { content.contains(it, ignoreCase = true) }
+        if (foundWord != null) {
+            com.halombg.mobile.data.NotificationHelper.showSppgEmergencyNotification(context, studentName, foundWord, content)
+        }
+    }
+
     fun startEditing(review: Review) {
         editingReviewId = review.id
         reviewContent = review.content
@@ -307,7 +345,6 @@ class SiswaReviewViewModel(application: Application) : AndroidViewModel(applicat
         simulatedPhotoName = null
         capturedImageUri = null
     }
-
     fun simulatePhoto() {
         simulatedPhotoName = "makan_siswa_${System.currentTimeMillis() / 1000}.jpg"
         capturedImageUri = null

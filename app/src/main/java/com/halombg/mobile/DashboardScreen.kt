@@ -26,7 +26,7 @@ import com.halombg.mobile.data.MockData
 import com.halombg.mobile.fragment.GuruModerationScreen
 import com.halombg.mobile.fragment.SiswaReviewScreen
 import com.halombg.mobile.fragment.SppgDistribusiScreen
-import com.halombg.mobile.fragment.SppgDistributionScreen
+import com.halombg.mobile.fragment.SppgFollowUpScreen
 import com.halombg.mobile.fragment.SppgProfileScreen
 import com.halombg.mobile.fragment.ValidasiAiScreen
 import com.halombg.mobile.ui.StatusBadge
@@ -50,6 +50,7 @@ fun DashboardScreen(
         "SPPG (Dapur)" -> listOf(
             TabItem("Beranda", Icons.Outlined.Home),
             TabItem("Distribusi", Icons.AutoMirrored.Outlined.Send),
+            TabItem("Ulasan Kritis", Icons.Outlined.Warning),
             TabItem("Profil Dapur", Icons.Outlined.Person)
         )
         "Guru" -> listOf(
@@ -137,8 +138,9 @@ fun DashboardScreen(
                 "Beranda" -> BerandaScreen(role)
                 "Profil Dapur" -> SppgProfileScreen()
                 "Ulasan" -> SiswaReviewScreen()
-                "Moderasi" -> GuruModerationScreen()
+                 "Moderasi" -> GuruModerationScreen()
                 "Distribusi" -> SppgDistribusiScreen()
+                "Ulasan Kritis" -> SppgFollowUpScreen()
                 else -> {
                     // Placeholder for other screens until they are migrated
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
