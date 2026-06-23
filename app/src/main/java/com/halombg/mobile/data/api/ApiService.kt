@@ -9,6 +9,10 @@ data class LoginRequest(
     val password: String
 )
 
+data class GoogleLoginRequest(
+    @SerializedName("id_token") val idToken: String
+)
+
 data class LoginResponse(
     val status: String,
     val message: String,
@@ -119,6 +123,11 @@ interface ApiService {
     @POST("login")
     suspend fun login(
         @Body request: LoginRequest
+    ): Response<LoginResponse>
+
+    @POST("auth/google")
+    suspend fun googleLogin(
+        @Body request: GoogleLoginRequest
     ): Response<LoginResponse>
 
     @GET("user")

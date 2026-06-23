@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.halombg.mobile.data.AuthRepository
+import com.halombg.mobile.data.api.GoogleLoginRequest
 import com.halombg.mobile.data.api.LoginRequest
 import com.halombg.mobile.data.api.NetworkModule
 import kotlinx.coroutines.launch
@@ -141,6 +142,36 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                 } finally {
                     isLoading = false
                 }
+            }
+        }
+    }
+
+    fun loginWithGoogle(idToken: String) {
+        isLoading = true
+        errorMessage = null
+        
+        viewModelScope.launch {
+            try {
+                val response = apiService.googleLogin(GoogleLoginRequest(idToken))
+                if (response.isSuccessful && response.body() != null) {
+                    val data = response.body()!!
+                    val user = data.user ?: throw Exception("User data empty")
+                    
+                    authRepository.saveToken(data.token ?: "")
+                    authRepository.saveUserRole(mapRoleFromApi(user.role))
+                    authRepository.saveUserEmail(user.email)
+                    authRepository.saveUserName(user.name)
+                    authRepository.saveSimulationMode(false)
+
+                    userRoleForNavigation = authRepository.getUserRole()
+                    loginSuccess = true
+                } else {
+                    errorMessage = response.errorBody()?.string() ?: "Google login failed"
+                }
+            } catch (e: Exception) {
+                errorMessage = "Google login error: ${e.message}"
+            } finally {
+                isLoading = false
             }
         }
     }
