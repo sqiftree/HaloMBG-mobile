@@ -27,6 +27,9 @@ Thumbs.db
 # Keystore files (for signing releases)
 *.jks
 *.keystore
+.history
 
 # Google Services file (if applicable)
 # google-services.json
+
+praktikum-rpl-a-02/
