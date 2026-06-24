@@ -35,6 +35,7 @@ import com.halombg.mobile.ui.theme.HaloMBGTheme
 import com.halombg.mobile.ui.theme.*
 import com.halombg.mobile.ui.StatusBadge
 import com.halombg.mobile.ui.Logo
+import com.halombg.mobile.ui.SplashScreen
 import com.halombg.mobile.data.AuthRepository
 import com.halombg.mobile.data.MockData
 import com.halombg.mobile.model.School
@@ -61,11 +62,17 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             HaloMBGTheme {
-                MainScreen(
-                    onLoginClick = {
-                        startActivity(Intent(this, LoginActivity::class.java))
-                    }
-                )
+                var showSplash by remember { mutableStateOf(true) }
+
+                if (showSplash) {
+                    SplashScreen(onFinished = { showSplash = false })
+                } else {
+                    MainScreen(
+                        onLoginClick = {
+                            startActivity(Intent(this, LoginActivity::class.java))
+                        }
+                    )
+                }
             }
         }
     }
