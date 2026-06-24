@@ -11,7 +11,12 @@ import java.util.concurrent.TimeUnit
 
 object NetworkModule {
 
-    private const val BASE_URL = "http://10.0.2.2:8000/api/"
+    /**
+     * Change this to your Computer's Local IP Address (e.g., 192.168.1.5)
+     * if you want to use a real phone.
+     * Use "10.0.2.2" only for the Android Emulator.
+     */
+    private const val BASE_URL = "http://192.168.1.95/api/"
 
     @Volatile
     private var apiService: ApiService? = null
@@ -40,8 +45,8 @@ object NetworkModule {
         val okHttpClient = OkHttpClient.Builder()
             .addInterceptor(authInterceptor)
             .addInterceptor(loggingInterceptor)
-            .connectTimeout(5, TimeUnit.SECONDS)
-            .readTimeout(5, TimeUnit.SECONDS)
+            .connectTimeout(15, TimeUnit.SECONDS)
+            .readTimeout(15, TimeUnit.SECONDS)
             .build()
 
         return Retrofit.Builder()

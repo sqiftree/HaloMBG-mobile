@@ -123,15 +123,41 @@ class SiswaReviewViewModel(application: Application) : AndroidViewModel(applicat
                         errorMessage = "Gagal memuat info dapur SPPG"
                     }
 
-                    // Fallback local menu and reviews lookup
+                    // For now, menus are still mock, but let's try to find them more dynamically
                     val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-                    val school = MockData.schools.find { it.id == studentSchoolId }
-                    val sppgId = school?.sppgId
-                    if (sppgId != null) {
-                        todayMenu = MockData.getDailyMenuForSppg(sppgId, today)
+                    
+                    // Prioritize sppgId from the API response
+                    val realSppgId = sppgProfile?.id
+                    if (realSppgId != null) {
+                        todayMenu = MockData.getDailyMenuForSppg(realSppgId, today)
+                    } else {
+                        // Fallback only if API didn't return an ID
+                        val school = MockData.schools.find { it.id == studentSchoolId }
+                        school?.sppgId?.let { todayMenu = MockData.getDailyMenuForSppg(it, today) }
                     }
-                    reviewsList.clear()
-                    reviewsList.addAll(MockData.getReviewsForSchool(studentSchoolId))
+
+                    // Fetch real reviews from server
+                    val reviewsResponse = apiService.getSiswaReviews()
+                    if (reviewsResponse.isSuccessful && reviewsResponse.body() != null) {
+                        val serverReviews = reviewsResponse.body()!!.map { dto ->
+                            Review(
+                                id = dto.id,
+                                userId = dto.userId.toString(),
+                                userName = if (dto.userId.toString() == authRepository.getUserEmail()) studentName else "Siswa #${dto.id % 100}",
+                                schoolId = dto.schoolId,
+                                schoolName = authRepository.getSchoolName() ?: "Sekolah",
+                                reviewDate = dto.reviewDate,
+                                content = dto.content,
+                                photo = dto.photo
+                            )
+                        }
+                        reviewsList.clear()
+                        reviewsList.addAll(serverReviews)
+                    } else {
+                        // Fallback to local lookup if server is empty or fails
+                        reviewsList.clear()
+                        reviewsList.addAll(MockData.getReviewsForSchool(studentSchoolId))
+                    }
 
                 } catch (e: IOException) {
                     errorMessage = "Kesalahan jaringan: Gagal terhubung ke server."

@@ -1,6 +1,5 @@
 package com.halombg.mobile
 
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -12,9 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -26,16 +23,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.halombg.mobile.ui.theme.*
 import com.halombg.mobile.ui.Logo
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
     preselectedRole: String? = null,
     onLoginSuccess: (String, String) -> Unit,
-    onCancel: () -> Unit
+    onCancel: () -> Unit,
+    viewModel: LoginViewModel = viewModel()
 ) {
-    val viewModel: LoginViewModel = viewModel()
-    val context = LocalContext.current
-
     // Sync login success
     LaunchedEffect(viewModel.loginSuccess) {
         if (viewModel.loginSuccess) {
@@ -44,6 +38,34 @@ fun LoginScreen(
         }
     }
 
+    LoginContent(
+        email = viewModel.email,
+        onEmailChange = { viewModel.email = it },
+        password = viewModel.password,
+        onPasswordChange = { viewModel.password = it },
+        isSimulationMode = viewModel.isSimulationMode,
+        onSimulationModeChange = { viewModel.isSimulationMode = it },
+        isLoading = viewModel.isLoading,
+        errorMessage = viewModel.errorMessage,
+        onLoginClick = { viewModel.login() },
+        onCancel = onCancel
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun LoginContent(
+    email: String,
+    onEmailChange: (String) -> Unit,
+    password: String,
+    onPasswordChange: (String) -> Unit,
+    isSimulationMode: Boolean,
+    onSimulationModeChange: (Boolean) -> Unit,
+    isLoading: Boolean,
+    errorMessage: String?,
+    onLoginClick: () -> Unit,
+    onCancel: () -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -95,8 +117,8 @@ fun LoginScreen(
                     )
 
                     // Error Alert Message Component
-                    AnimatedVisibility(visible = viewModel.errorMessage != null) {
-                        viewModel.errorMessage?.let { error ->
+                    AnimatedVisibility(visible = errorMessage != null) {
+                        errorMessage?.let { error ->
                             Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -117,15 +139,15 @@ fun LoginScreen(
 
                     // Email Field
                     Text(
-                        text = "Surel (Email)",
+                        text = "Email",
                         color = TextPrimary,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Medium,
                         modifier = Modifier.padding(top = 16.dp)
                     )
                     OutlinedTextField(
-                        value = viewModel.email,
-                        onValueChange = { viewModel.email = it },
+                        value = email,
+                        onValueChange = onEmailChange,
                         placeholder = { Text("operator@halombg.go.id", color = TextTertiary, fontSize = 14.sp) },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -140,7 +162,7 @@ fun LoginScreen(
                             unfocusedTextColor = TextPrimary
                         ),
                         singleLine = true,
-                        enabled = !viewModel.isLoading,
+                        enabled = !isLoading,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
                     )
 
@@ -153,8 +175,8 @@ fun LoginScreen(
                         modifier = Modifier.padding(top = 16.dp)
                     )
                     OutlinedTextField(
-                        value = viewModel.password,
-                        onValueChange = { viewModel.password = it },
+                        value = password,
+                        onValueChange = onPasswordChange,
                         placeholder = { Text("******", color = TextTertiary, fontSize = 14.sp) },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -169,7 +191,7 @@ fun LoginScreen(
                             unfocusedTextColor = TextPrimary
                         ),
                         singleLine = true,
-                        enabled = !viewModel.isLoading,
+                        enabled = !isLoading,
                         visualTransformation = PasswordVisualTransformation(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
                     )
@@ -182,8 +204,8 @@ fun LoginScreen(
                             .padding(top = 16.dp)
                     ) {
                         Checkbox(
-                            checked = viewModel.isSimulationMode,
-                            onCheckedChange = { if (!viewModel.isLoading) viewModel.isSimulationMode = it },
+                            checked = isSimulationMode,
+                            onCheckedChange = { if (!isLoading) onSimulationModeChange(it) },
                             colors = CheckboxDefaults.colors(
                                 checkedColor = PrimaryNavy,
                                 uncheckedColor = TextTertiary
@@ -199,8 +221,8 @@ fun LoginScreen(
 
                     // Submit Button
                     Button(
-                        onClick = { viewModel.login() },
-                        enabled = !viewModel.isLoading,
+                        onClick = onLoginClick,
+                        enabled = !isLoading,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 24.dp)
@@ -211,7 +233,7 @@ fun LoginScreen(
                             disabledContainerColor = PrimaryNavy.copy(alpha = 0.6f)
                         )
                     ) {
-                        if (viewModel.isLoading) {
+                        if (isLoading) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.Center
@@ -231,12 +253,45 @@ fun LoginScreen(
 
                     TextButton(
                         onClick = onCancel,
-                        enabled = !viewModel.isLoading,
+                        enabled = !isLoading,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 8.dp)
                     ) {
                         Text("Kembali ke Beranda", color = TextSecondary, fontSize = 14.sp)
+                    }
+
+                    // --- Google Auth Section ---
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        HorizontalDivider(modifier = Modifier.weight(1f), color = BorderDefault)
+                        Text(
+                            text = "atau",
+                            modifier = Modifier.padding(horizontal = 12.dp),
+                            color = TextTertiary,
+                            fontSize = 12.sp
+                        )
+                        HorizontalDivider(modifier = Modifier.weight(1f), color = BorderDefault)
+                    }
+
+                    OutlinedButton(
+                        onClick = { /* TODO: Trigger Google Auth */ },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp)
+                            .height(44.dp),
+                        shape = RoundedCornerShape(6.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, BorderDefault),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = TextPrimary)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            // You can add a Google Icon here later
+                            Text("Masuk dengan Google", fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                        }
                     }
                 }
             }
@@ -248,8 +303,16 @@ fun LoginScreen(
 @Composable
 fun LoginScreenPreview() {
     HaloMBGTheme {
-        LoginScreen(
-            onLoginSuccess = { _, _ -> },
+        LoginContent(
+            email = "demo@halombg.go.id",
+            onEmailChange = {},
+            password = "password",
+            onPasswordChange = {},
+            isSimulationMode = true,
+            onSimulationModeChange = {},
+            isLoading = false,
+            errorMessage = null,
+            onLoginClick = {},
             onCancel = {}
         )
     }

@@ -9,15 +9,19 @@ data class LoginRequest(
     val password: String
 )
 
+data class GoogleLoginRequest(
+    @SerializedName("id_token") val idToken: String
+)
+
 data class LoginResponse(
-    val status: String,
-    val message: String,
-    val token: String?,
+    val status: String?,
+    val message: String?,
+    @SerializedName("access_token") val token: String?,
     val user: UserDto?
 )
 
 data class UserDto(
-    val id: Long,
+    @SerializedName("id") val id: String?,
     val name: String,
     val email: String,
     val role: String,
@@ -121,6 +125,11 @@ interface ApiService {
         @Body request: LoginRequest
     ): Response<LoginResponse>
 
+    @POST("auth/google")
+    suspend fun googleLogin(
+        @Body request: GoogleLoginRequest
+    ): Response<LoginResponse>
+
     @GET("user")
     suspend fun getUserProfile(): Response<LoginResponse>
 
@@ -134,6 +143,9 @@ interface ApiService {
 
     @GET("siswa/sppg-info")
     suspend fun getSiswaSppgInfo(): Response<ProfileDto>
+
+    @GET("siswa/reviews")
+    suspend fun getSiswaReviews(): Response<List<ReviewDto>>
 
     @POST("siswa/reviews")
     suspend fun postSiswaReview(
