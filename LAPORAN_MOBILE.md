@@ -33,59 +33,59 @@
 ## BAB I: PENDAHULUAN
 
 ### 1.1 Latar Belakang Masalah
-Program Makan Bergizi Gratis (MBG) merupakan inisiatif nasional berskala besar yang membutuhkan pengelolaan logistik yang rumit, pencatatan nutrisi yang akurat, serta pengawasan mutu pangan dari hulu ke hilir. Sistem **HaloMBG** dikembangkan untuk menjadi garda depan dalam manajemen, transparansi, dan pemantauan distribusi ini. 
+Program Makan Bergizi Gratis (MBG) merupakan inisiatif nasional berskala besar yang membutuhkan pengelolaan logistik yang komprehensif, pencatatan nutrisi yang akurat, serta pengawasan mutu pangan dari hulu ke hilir. Sistem **HaloMBG** dikembangkan untuk menjadi pilar utama dalam manajemen, transparansi, dan pemantauan distribusi ini. 
 
-Meski pada mulanya diinisiasi dalam bentuk portal Web terpusat (berbasis Laravel dan ReactJS) untuk memfasilitasi peran administratif, ekosistem MBG tidak dapat berjalan secara optimal tanpa keterlibatan aktif para aktor lapangan. Proses penerimaan ulasan langsung dari siswa, dokumentasi penyaluran fisik oleh kurir dari dapur SPPG (Satuan Pelayanan Program Gizi), serta pengawasan disiplin oleh tenaga pengajar di lingkungan sekolah memerlukan perangkat lunak yang sigap dan dinamis. Menyikapi urgensi keterbatasan akses pada komputer desktop di area operasional tersebut, pengembangan versi **Klien Mobile (Aplikasi Android)** menjadi kewajiban yang tidak dapat dihindari.
+Meskipun pada awalnya diinisiasi dalam bentuk portal web terpusat (berbasis Laravel dan ReactJS) untuk memfasilitasi peran administratif, ekosistem MBG tidak dapat berjalan secara optimal tanpa keterlibatan aktif para aktor lapangan. Proses penerimaan ulasan langsung dari siswa, dokumentasi penyaluran fisik oleh kurir dari dapur SPPG (Satuan Pelayanan Program Gizi), serta pengawasan disiplin oleh tenaga pengajar di lingkungan sekolah memerlukan perangkat lunak yang adaptif dan responsif. Menyikapi urgensi keterbatasan akses pada komputer desktop di area operasional tersebut, pengembangan versi **Klien Seluler (Aplikasi Android)** menjadi solusi penting yang harus diimplementasikan.
 
 ### 1.2 Batasan Masalah
 Laporan dokumentasi ini memiliki cakupan lingkup sebagai berikut:
-1. Menitikberatkan pembahasan pada sisi klien aplikasi bergerak (*Mobile Client*) bersistem operasi Android yang berada di repositori `HaloMBG-mobile`.
-2. Tidak mengkaji ulang struktur algoritma validasi AI (Gemini Vision) maupun penataan master data di server Laravel, kecuali jika hal tersebut bersinggungan langsung dengan respon *payload* *endpoint* API yang dimanfaatkan oleh ponsel.
+1. Menitikberatkan pembahasan pada sisi klien aplikasi seluler (*Mobile Client*) bersistem operasi Android yang berada di repositori `HaloMBG-mobile`.
+2. Tidak mengkaji ulang struktur algoritma validasi AI (Gemini Vision) maupun penataan master data di server Laravel, kecuali jika hal tersebut bersinggungan langsung dengan respons *payload* *endpoint* API yang dimanfaatkan oleh aplikasi seluler.
 3. Aplikasi difokuskan secara eksklusif untuk tiga aktor pengguna akhir (*end-user*): **Siswa, Guru, dan SPPG (Operator/Kurir)**.
 
 ### 1.3 Tujuan Pengembangan Aplikasi Mobile
-Tujuan spesifik dari rancang bangun klien mobile adalah:
-* **Digitalisasi Alur Lapangan:** Menggeser proses dokumentasi distribusi fisik dari pencatatan kertas atau pembaruan manual di meja kantor menjadi dokumentasi *real-time* berbasis perangkat bergerak.
-* **Memanfaatkan Fitur Native Ponsel:** Memakai infrastruktur ponsel cerdas berupa kamera *native* untuk bukti *Proof of Delivery* dan pengambilan gambar makanan secara seketika.
-* **Respon Krisis Instan:** Memangkas *feedback loop* antara keluhan murid dan aksi dapur melalui penggunaan Push Notification (FCM) jika terdeteksi krisis pada kualitas makanan (seperti terindikasi basi atau kotor).
-* **Adaptasi Mudah bagi Warga Sekolah:** Mengizinkan pendaftaran akun dan akses ulasan secara independen oleh siswa dan guru langsung dari saku mereka.
+Tujuan spesifik dari rancang bangun klien seluler adalah:
+* **Digitalisasi Alur Lapangan:** Menggeser proses dokumentasi distribusi fisik dari pencatatan manual berbasis kertas menjadi dokumentasi secara waktu-nyata (*real-time*) melalui perangkat seluler.
+* **Memanfaatkan Fitur Native Perangkat:** Menggunakan fitur kamera bawaan (*native*) perangkat seluler untuk kebutuhan bukti pengiriman (*Proof of Delivery*) dan pengambilan foto makanan secara langsung.
+* **Respon Krisis Instan:** Mempercepat alur koordinasi (*feedback loop*) antara keluhan siswa dan tindakan korektif pihak dapur SPPG dengan mengintegrasikan layanan *Push Notification* (FCM) saat terdeteksi keluhan kritis terkait kualitas makanan (seperti indikasi makanan basi atau tidak higienis).
+* **Adaptasi Mudah bagi Warga Sekolah:** Memungkinkan pendaftaran akun dan akses ulasan secara mandiri oleh siswa dan guru langsung melalui perangkat seluler masing-masing.
 
 ---
 
 ## BAB II: ANALISIS KEBUTUHAN DAN PERBANDINGAN PLATFORM
 
 ### 2.1 Arsitektur Sistem Berbagi Pakai (Single Source of Truth)
-Keseluruhan sistem HaloMBG mengimplementasikan arsitektur *Single Source of Truth* (SSOT). Artinya, antara Web (`praktikum-rpl-a-02`) dan Mobile (`HaloMBG-mobile`) tidak menggunakan *database* yang terpisah. Baik aplikasi web frontend berbasis ReactJS maupun klien mobile Android, seluruhnya bermuara pada gerbang layanan REST API terpusat buatan kerangka kerja Laravel yang berujung pada pangkalan data PostgreSQL. Aksi status yang diubah oleh kurir di jalan lewat HP akan secara seketika mengubah grafik *pie-chart* pemantauan yang dilihat oleh administrator di layar komputer mereka.
+Keseluruhan sistem HaloMBG mengimplementasikan arsitektur *Single Source of Truth* (SSOT), di mana aplikasi web (`praktikum-rpl-a-02`) dan aplikasi seluler (`HaloMBG-mobile`) menggunakan basis data terintegrasi yang sama. Baik frontend web berbasis ReactJS maupun klien seluler Android terhubung ke layanan REST API terpusat yang dibangun menggunakan kerangka kerja Laravel dan didukung oleh sistem manajemen basis data PostgreSQL. Setiap pembaruan status pengiriman yang dilakukan oleh kurir melalui perangkat seluler akan memperbarui visualisasi diagram lingkaran (*pie chart*) pemantauan pada dasbor administrator secara waktu-nyata (*real-time*).
 
 ### 2.2 Identifikasi Peran Pengguna Aplikasi Mobile
-Berdasarkan tinjauan operasional di lapangan, diputuskan bahwa hanya **tiga (3) dari empat (4)** *role* utama yang diperkenankan untuk diekspos melalui antarmuka layar sentuh kecil:
-1. **Siswa:** Pengguna terbanyak. Hanya butuh ponsel Android untuk meregistrasi diri mereka ke sekolah, melihat menu gizi hari itu, memotret bekal di atas paha mereka di dalam kelas, dan mempublikasikan ulasan.
-2. **Guru:** Memanfaatkan ponsel sambil berkeliling memantau aktivitas jam istirahat; memfasilitasi kemampuan merespons nakalnya tulisan ulasan siswa melalui pelaporan kilat (*flagging*).
-3. **SPPG (Operator/Kurir):** Pekerja yang berada di atas sadel kendaraan atau sedang menurunkan kargo berisi ratusan boks bento, yang mutlak membutuhkan piranti satu tangan untuk memindai status dan menyerahkan laporan serah terima.
+Berdasarkan analisis kebutuhan lapangan, disepakati bahwa hanya **tiga (3) dari empat (4)** peran utama yang diakomodasi dalam antarmuka aplikasi seluler:
+1. **Siswa:** Pengguna dengan jumlah terbesar. Siswa menggunakan aplikasi Android untuk melakukan pendaftaran secara mandiri ke sekolah masing-masing, melihat menu gizi harian, mengambil foto makanan yang disajikan, serta mengirimkan ulasan secara langsung.
+2. **Guru:** Menggunakan aplikasi untuk memantau aktivitas siswa secara fleksibel selama berada di lingkungan sekolah. Guru memiliki wewenang untuk meninjau ulasan siswa dan melakukan tindakan penandaan cepat (*flagging*) terhadap ulasan yang dinilai melanggar etika atau ketentuan penggunaan.
+3. **SPPG (Operator/Kurir):** Petugas lapangan dengan mobilitas tinggi (seperti saat mengendarai armada pengantaran atau menurunkan muatan boks makanan) yang membutuhkan antarmuka praktis untuk dioperasikan dengan satu tangan guna memindai status pengiriman serta mengunggah laporan serah terima secara cepat.
 
-Sementara itu, peran **Administrator** dieliminasi dari sistem *mobile*, dikarenakan pendaftaran puluhan dapur SPPG baru dan konfigurasi relasi *mapping* sekolah dengan dapur tidaklah nyaman dilakukan lewat ukuran layar 6-inci.
+Sementara itu, peran **Administrator** tidak diintegrasikan ke dalam platform seluler karena kompleksitas pengelolaan data, seperti registrasi unit dapur SPPG baru dan konfigurasi pemetaan (*mapping*) hubungan antara sekolah dengan dapur, yang lebih efisien dilakukan melalui perangkat desktop.
 
 ### 2.3 Perbandingan Fungsionalitas (Product Backlog Web vs Mobile)
 Merujuk kepada daftar 13 *Product Backlog* Web (BL) yang tertuang dalam dokumen spesifikasi `backlog.md`, di bawah ini adalah rasionalisasi bagaimana tiap-tiap fitur diterjemahkan atau tidak diterjemahkan ke dalam bentuk integrasi fitur Mobile (MOB):
 
 | ID Backlog | Fungsionalitas / Modul | Status di Web | Status di Mobile | Analisis Fungsional dan Alasan Platform |
 | :--- | :--- | :---: | :---: | :--- |
-| **BL-01 / MOB-01** | Sistem Autentikasi & Manajemen Role | ✅ Ya | ✅ Ya | Modul kunci agar API berfungsi. Pada platform Mobile, *flow* registrasi akun (untuk Siswa & Guru) secara aktif dibuka agar *onboarding* aplikasi ke warga sekolah sangat masif, tanpa mereka harus membiasakan diri membuka Web terlebih dulu. |
-| **BL-02** | Profil Dapur MBG & Daftar Sekolah | ✅ Ya | ✅ Ya *(Read-only)* | Operator Web memiliki fungsi CRUD untuk mengatur data profil. Namun di antarmuka Mobile, ini direduksi murni menjadi direktori brosur baca-saja (*read-only*) untuk menghemat kerumitan form. |
-| **BL-03** | Pencarian SPPG Wilayah/Sekolah | ✅ Ya | ✅ Ya | Diadopsi pada layar awal (Beranda) aplikasi Android agar orang tua atau publik anonim bisa langsung mengecek siapa *vendor* sekolah anaknya tanpa harus memakan waktu mencari di peramban. |
-| **BL-04** | Input Menu Harian oleh SPPG | ✅ Ya | ❌ Tidak | Form ini menuntut operator SPPG menginput data gramasi Karbohidrat, Protein, dsb. yang rentan terhadap *typo*. Ini wajib diketik tenang di atas *keyboard desktop* melalui platform Web. |
-| **BL-05** | Validasi Nutrisi AI (Foto + Teks) | ✅ Ya | ❌ Tidak | Proses unggahan ini berjalan sepaket dengan BL-04. Interaksi *back-and-forth* koreksi dari respons Gemini Vision jauh lebih kaya secara visual bila dikerjakan di layar monitor luas (Web). |
-| **BL-06** | Panel Admin: Master Data SPPG | ✅ Ya | ❌ Tidak | Pemetaan relasional basis data *many-to-many* untuk ribuan sekolah secara tegas merupakan fungsi meja kerja (*back-office*) Administrator. Absen penuh dari fungsi Mobile. |
-| **BL-07 / MOB-03** | Status Distribusi Harian & Bukti Foto | ✅ Ya | ✅ Ya | **Core Feature.** Kurir memperbarui transisi *Proof of Delivery* di perjalanan secara gesit memakai antarmuka kartu berdesain lega dan mengakses lensa kamera ponsel tanpa transisi antar layar panjang. |
-| **BL-08** | Notifikasi Keterlambatan Distribusi | ✅ Ya | ❌ Tidak *(Hanya via WA)*| Dipicu secara asinkron oleh skrip *CronJob/Scheduler* Web Laravel pada pukul 11:00 WIB guna menembakkan pesan *WhatsApp API*. Tidak perlu UI di ponsel. |
-| **BL-09 / MOB-02** | Ulasan Harian dan Foto Siswa | ✅ Ya | ✅ Ya | **Fitur Inti.** Mengurangi friksi operasional dengan mengizinkan siswa langsung memotret makanan dan memberikan ulasan melalui ponsel secara seketika. |
-| **BL-10 / MOB-04** | Moderasi Post-Publish Ulasan (Guru) | ✅ Ya | ✅ Ya | Mempermudah Guru dalam melakukan peninjauan. Guru dapat memantau umpan ulasan secara *mobile* dan langsung memberikan tanda (*flag*) pada ulasan yang terindikasi melanggar pedoman. |
-| **BL-11 / MOB-04** | Sistem Notifikasi | ✅ Ya | ✅ Ya | Web memajang notifikasi pasif (*in-app*). Klien Mobile menggunakan teknologi *Firebase Cloud Messaging* (FCM) untuk menghasilkan *push notification* berprioritas tinggi. |
-| **BL-12 / MOB-05** | Notifikasi Kritis & Tindak Lanjut SPPG | ✅ Ya | ✅ Ya | Pemberitahuan situasi kritis (seperti indikasi masalah kualitas makanan) akan segera disalurkan ke perangkat pihak SPPG melalui fitur *Push Notification*, sehingga memungkinkan penanganan cepat. |
-| **BL-13** | Ringkasan Evaluasi AI Publik | ✅ Ya | ❌ Tidak | Visualisasi analitik tren agregasi evaluasi performa dapur akan lebih efektif dan informatif apabila diakses melalui layar lebar (Web). |
+| **BL-01 / MOB-01** | Sistem Autentikasi & Manajemen Role | ✅ Ya | ✅ Ya | Modul utama untuk otorisasi API. Pendaftaran akun Siswa & Guru diakomodasi langsung di aplikasi seluler untuk mempercepat proses *onboarding* pengguna di lingkungan sekolah secara luas tanpa harus mengakses platform web terlebih dahulu. |
+| **BL-02** | Profil Dapur MBG & Daftar Sekolah | ✅ Ya | ✅ Ya *(Read-only)* | Pengguna platform web memiliki hak akses penuh (CRUD) untuk mengelola data profil. Pada aplikasi seluler, data ini disajikan dalam format baca-saja (*read-only*) guna menyederhanakan antarmuka. |
+| **BL-03** | Pencarian SPPG Wilayah/Sekolah | ✅ Ya | ✅ Ya | Disediakan pada halaman utama (*Home*) aplikasi seluler guna memudahkan masyarakat umum atau orang tua siswa memeriksa informasi penyedia layanan (*vendor* SPPG) sekolah secara langsung tanpa harus melakukan pencarian manual melalui peramban web. |
+| **BL-04** | Input Menu Harian oleh SPPG | ✅ Ya | ❌ Tidak | Proses penginputan data detail gizi harian (seperti berat gramasi karbohidrat, protein, dll.) memerlukan ketelitian tinggi guna menghindari kesalahan penulisan (*typo*). Oleh karena itu, pengisian data ini dialokasikan secara khusus melalui platform web. |
+| **BL-05** | Validasi Nutrisi AI (Foto + Teks) | ✅ Ya | ❌ Tidak | Fungsionalitas ini terintegrasi erat dengan menu input harian (BL-04). Proses validasi balik (*back-and-forth*) serta penyesuaian terhadap hasil analisis Gemini Vision lebih optimal dilakukan pada resolusi layar monitor yang lebih besar (Web). |
+| **BL-06** | Panel Admin: Master Data SPPG | ✅ Ya | ❌ Tidak | Pengelolaan hubungan relasional basis data (*many-to-many*) berskala besar merupakan fungsi administratif kantor belakang (*back-office*) yang sepenuhnya dilakukan oleh Administrator melalui platform web. |
+| **BL-07 / MOB-03** | Status Distribusi Harian & Bukti Foto | ✅ Ya | ✅ Ya | **Fitur Utama.** Memungkinkan kurir memperbarui status pengiriman (*Proof of Delivery*) secara efisien menggunakan antarmuka berbasis kartu (*card layout*) yang ergonomis dan mengakses kamera perangkat secara langsung. |
+| **BL-08** | Notifikasi Keterlambatan Distribusi | ✅ Ya | ❌ Tidak *(Hanya via WA)*| Sistem mengirimkan pemberitahuan keterlambatan secara otomatis melalui integrasi API WhatsApp yang dijalankan oleh penjadwal tugas (*cron job*) di server web pada pukul 11:00 WIB. |
+| **BL-09 / MOB-02** | Ulasan Harian dan Foto Siswa | ✅ Ya | ✅ Ya | **Fitur Utama.** Mempermudah siswa dalam menyampaikan ulasan harian beserta bukti foto makanan secara instan dan waktu-nyata (*real-time*). |
+| **BL-10 / MOB-04** | Moderasi Post-Publish Ulasan (Guru) | ✅ Ya | ✅ Ya | Memudahkan guru melakukan pemantauan ulasan siswa secara seluler dan segera menandai (*flag*) ulasan yang dinilai melanggar etika atau ketentuan penggunaan. |
+| **BL-11 / MOB-04** | Sistem Notifikasi | ✅ Ya | ✅ Ya | Jika platform web menyajikan notifikasi pasif di dalam aplikasi (*in-app*), maka aplikasi seluler menggunakan *Firebase Cloud Messaging* (FCM) untuk mengirimkan notifikasi dorong (*push notification*) secara waktu-nyata. |
+| **BL-12 / MOB-05** | Notifikasi Kritis & Tindak Lanjut SPPG | ✅ Ya | ✅ Ya | Notifikasi instan mengenai kondisi kritis (misalnya laporan makanan tidak layak konsumsi) akan segera dikirimkan ke perangkat SPPG penerima untuk memicu tindakan korektif yang cepat. |
+| **BL-13** | Ringkasan Evaluasi AI Publik | ✅ Ya | ❌ Tidak | Visualisasi grafik dan analisis tren performa dapur secara menyeluruh lebih efektif disajikan melalui dasbor web yang beresolusi tinggi. |
 
 ### 2.4 Rasionalisasi Pemilihan Platform Mobile
-Berangkat dari tabel di atas, dapat ditarik kesimpulan tajam bahwa aplikasi Klien Mobile bukanlah alat sekadar kloning fitur Web. Ia merupakan alat spesialis (*special-purpose tool*) yang dipangkas tajam secara sengaja guna menyingkirkan fungsionalitas birokratis (formulir gizi, pembuatan SPPG) demi mewadahi tiga pilar terpenting operasional MBG di lapangan: **Mobilitas kurir, Kedaruratan komunikasi, dan Kecepatan dokumentasi native.**
+Berdasarkan analisis perbandingan di atas, aplikasi seluler dirancang secara khusus (*special-purpose tool*) untuk mendukung efisiensi kerja lapangan dengan meniadakan fitur administratif yang kompleks (seperti pengisian gizi dan konfigurasi database). Fokus utama aplikasi seluler adalah pada tiga aspek operasional krusial: **mobilitas kurir, efisiensi komunikasi darurat, dan integrasi fitur dokumentasi perangkat secara langsung (*native photo capture*).**
 
 ---
 
@@ -99,22 +99,22 @@ Pengembangan antarmuka pengguna Android dibangun menggunakan pendekatan deklarat
 
 ### 3.2 Desain Antarmuka dan Filosofi Visual
 Antarmuka aplikasi dirancang dengan mengedepankan fungsionalitas dan profesionalitas yang sesuai dengan peruntukannya sebagai infrastruktur layanan publik. Pendekatan visual yang diusung berpedoman pada prinsip *Warm Authority*:
-* **Desain Profesional dan Minimalis**: Menghindari penggunaan elemen dekoratif yang berlebihan, animasi yang tidak esensial, maupun ornamen visual yang dapat mengganggu konsentrasi. Hal ini memastikan pengguna dapat fokus pada penyelesaian tugas utama di lapangan secara efisien.
-* **Palet Warna Terukur**: Menggunakan kombinasi warna utama *Deep Navy* (`#071E49`) yang merepresentasikan otoritas dan kepercayaan, serta aksen pendukung *Fresh Green* (`#92D05D`), yang kesemuanya dipadukan dengan latar belakang *off-white* (`#F8F7F5`) guna menjamin kejernihan bacaan (*readability*) serta mengesankan kebersihan institusional. Warna *Emerald/Deep Green* (`#2E7D32`) hanya dialokasikan secara spesifik untuk indikator status sukses/berhasil.
-* **Hierarki Tipografi yang Jelas**: Penempatan angka metrik krusial dipertegas menggunakan tipografi sans-serif modern yang tebal dan proporsi *white-space* yang cukup, sehingga tidak memerlukan garis pembatas tabel yang kaku.
+* **Desain Profesional dan Minimalis**: Elemen visual dirancang minimalis dengan menghindari animasi yang tidak esensial atau dekorasi berlebih yang dapat mengalihkan perhatian, sehingga pengguna dapat fokus menyelesaikan tugas operasional secara efisien.
+* **Palet Warna Terukur**: Menggunakan warna utama *Deep Navy* (`#071E49`) untuk mencerminkan profesionalitas dan kepercayaan, dikombinasikan dengan warna aksen *Fresh Green* (`#92D05D`) dan latar belakang *off-white* (`#F8F7F5`) untuk tingkat keterbacaan (*readability*) yang optimal serta kesan bersih. Warna hijau emerald (`#2E7D32`) digunakan secara spesifik untuk indikator keberhasilan transaksi atau status sukses.
+* **Hierarki Tipografi yang Jelas**: Hierarki visual dipertegas menggunakan tipografi sans-serif modern berbobot tebal untuk informasi numerik penting, didukung oleh tata letak ruang kosong (*white-space*) yang seimbang untuk menggantikan garis pembatas kaku.
 
 ### 3.3 Alur Autentikasi dan Manajemen Sesi Klien
-Melanjutkan komitmen sekuritas API, integrasi koneksi antara Android dengan backend Laravel terjadi secara kokoh melalui *token-based authentication*.
-1. Saat login, Android menerima JSON dengan entitas *Bearer Token* **Sanctum**.
-2. Modul `AuthRepository.kt` bergegas mengambil *Token* tersebut untuk kemudian dienkripsi paksa ke ranah internal perangkat menggunakan **EncryptedSharedPreferences** yang ditangani oleh teknologi AES-256 bawaan *hardware* Google, bukan *Shared Preferences* polos yang gampang diretas.
-3. Kapan pun aplikasi mengirimkan lembar ulasan atau menggeser status pengantaran, fungsi `AuthInterceptor` secara otomatis menyelipkan tanda pengenal *Bearer Token* tersebut ke leher (*Header*) permintaan jaringan agar *server* selalu mempercayai validitas sesi pekerja tersebut.
+Untuk menjamin keamanan pertukaran data API, otorisasi antara aplikasi Android dengan layanan backend Laravel dilakukan dengan metode autentikasi berbasis token (*token-based authentication*).
+1. Saat berhasil masuk (*login*), aplikasi Android menerima respons JSON berisi token *Bearer* dari Laravel Sanctum.
+2. Melalui komponen `AuthRepository.kt`, token tersebut disimpan secara aman di dalam perangkat menggunakan **EncryptedSharedPreferences** dengan enkripsi AES-256 yang didukung oleh perangkat keras (hardware-backed), guna mencegah risiko kebocoran data sesi yang biasa terjadi pada Shared Preferences standar.
+3. Untuk setiap permintaan HTTP (seperti pengiriman ulasan atau pembaruan status pengiriman), komponen `AuthInterceptor` secara otomatis menyematkan token *Bearer* tersebut ke dalam *Header* permintaan agar dapat divalidasi oleh server.
 
 ### 3.4 Integrasi Perangkat Keras dan Format Media
-Fitur kamera pada ekosistem Android rentan sekali merusak memori karena rumitnya pustaka `CameraX` atau `Camera2`. Aplikasi HaloMBG-mobile melewati permasalahan itu dengan cermat berkat implementasi fitur bawaan OS modern, yaitu `ActivityResultContracts.TakePicture()`. Fitur ini:
-* Memanggil piranti lunak kamera bawaan HP (apakah itu milik Samsung, Xiaomi, dsb.) secara utuh.
-* Menyimpan berkas sementaranya ke *Local Cache*.
-* Me- *resize* lalu melakukan *encoding* menjadi gumpalan teks panjang berformat **Data URI Base64**.
-* Hal ini mengizinkan transfer string raksasa tersebut via *payload* REST biasa layaknya string teks. Oleh karenanya, server Laravel di seberang sana terbebas dari keharusan meracik *multipart form-data parsing*. Gambar tersebut kelak bermukim utuh di dalam kolom `TEXT` panjang *database* PostgreSQL.
+Untuk mengoptimalkan penggunaan memori dan meminimalkan kerumitan integrasi modul kamera (seperti penggunaan pustaka `CameraX` atau `Camera2`), aplikasi mengimplementasikan fitur bawaan sistem operasi modern melalui `ActivityResultContracts.TakePicture()`. Mekanisme ini bekerja sebagai berikut:
+* Sistem memanggil aplikasi kamera bawaan perangkat (native camera) secara langsung.
+* Berkas citra sementara disimpan pada direktori penyimpanan lokal (*cache*).
+* Gambar tersebut dikompresi (di-resize) dan dikodekan (*encoding*) menjadi representasi string Base64 dalam format Data URI.
+* Data tersebut kemudian ditransmisikan sebagai payload teks standar melalui permintaan REST API. Metode ini menyederhanakan pemrosesan di sisi backend Laravel karena tidak memerlukan penguraian data formulir multibidang (*multipart form-data parsing*). Gambar tersebut disimpan langsung dalam kolom bertipe data `TEXT` pada database PostgreSQL.
 
 ---
 
@@ -123,36 +123,36 @@ Fitur kamera pada ekosistem Android rentan sekali merusak memori karena rumitnya
 Pada bab ini dijelaskan bagaimana fitur fungsional diterjemahkan ke dalam antar muka aplikasi (berdasarkan status spesifikasi dan implementasi dari *product backlog mobile* `MOB-01` s.d `MOB-05`).
 
 ### 4.1 MOB-01: Autentikasi Mobile, Registrasi, dan Manajemen Sesi
-Aplikasi HaloMBG menyederhanakan layar awal dengan menghindari penggunaan *dropdown* pemilih *role* (*peran*). Pengguna dari segala jenis peran hanya perlu masuk melalui satu gerbang login utama yang terintegrasi.
-* **Routing Berbasis Peran Otomatis (Role-Based Routing)**: Saat pengguna memasukkan kredensial yang valid (misalnya menggunakan akun *seeder* pengujian `siswa@halombg.com` atau akun pengguna riil lainnya), API *backend* Laravel akan memvalidasinya dan mengembalikan identitas `role` dari pengguna tersebut. Aplikasi *mobile* kemudian secara dinamis membaca `role` ini (Siswa, Guru, atau SPPG) dan langsung mengarahkan (*routing*) antarmuka menuju *dashboard* spesifik mereka tanpa perlu seleksi manual tambahan.
-* **Fasilitas Registrasi Mandiri**: Bagi siswa dan guru yang baru tergabung dalam program ini, tersedia gerbang pendaftaran *native* dengan formulir masukan kredensial (seperti Nomor Induk Siswa Nasional / NISN) dan pemetaan asal instansi sekolah secara langsung di dalam gawai.
+Aplikasi HaloMBG menyederhanakan halaman awal dengan meniadakan elemen pemilihan peran (*dropdown role selection*). Seluruh kategori pengguna mengakses aplikasi melalui satu pintu masuk (*login screen*) yang sama.
+* **Pengalihan Berbasis Peran secara Otomatis (Role-Based Routing)**: Ketika pengguna memasukkan kredensial yang valid (seperti menggunakan akun pengujian `siswa@halombg.com`), API backend Laravel memverifikasi data tersebut dan mengembalikan informasi atribut `role` pengguna. Aplikasi seluler kemudian mendeteksi nilai peran tersebut secara dinamis (Siswa, Guru, atau SPPG) dan mengalihkan halaman ke dasbor spesifik masing-masing pengguna tanpa memerlukan langkah pemilihan manual tambahan.
+* **Fasilitas Registrasi Mandiri**: Bagi siswa dan guru baru, aplikasi menyediakan fitur pendaftaran secara langsung (*native registration*) dengan melengkapi formulir kredensial (seperti Nomor Induk Siswa Nasional / NISN) serta menentukan institusi sekolah yang terdaftar.
 
 ![Placeholder Form Registrasi & Login](https://placehold.co/800x400/F8F7F5/2E7D32?text=Layar+Login+%26+Registrasi+Siswa+Guru)
 
 ### 4.2 MOB-02: Portal Ulasan Siswa Native
-Layar operasional utama bagi siswa. Saat pembagian makanan berlangsung, siswa dapat secara langsung mendokumentasikan dan memberikan ulasan terhadap makanan yang diterima.
-* **Antarmuka Minimalis**: Layar didominasi oleh tombol akses cepat **Ambil Foto**, serta komponen isian teks (dengan batas minimum karakter tertentu guna memastikan umpan balik yang kualitatif dan bermakna).
-* **Dampak Fungsional**: Terjaminnya validitas data pelaporan berkat integrasi kamera secara langsung tanpa penundaan.
+Merupakan halaman utama bagi siswa untuk melakukan dokumentasi dan memberikan penilaian secara langsung terhadap makanan yang disajikan pada hari tersebut.
+* **Antarmuka Ergonomis**: Halaman ini dirancang secara terfokus dengan menonjolkan tombol aksi pengambilan foto serta area input ulasan tekstual (yang menerapkan validasi batas minimum karakter demi menjaga kualitas umpan balik).
+* **Dampak Operasional**: Menjamin keabsahan dokumentasi berkat pemanfaatan fungsi kamera terintegrasi secara cepat.
 
 ![Placeholder Ulasan Siswa](https://placehold.co/800x400/F8F7F5/2E7D32?text=Layar+Portal+Ulasan+Siswa+%2B+Kamera)
 
 ### 4.3 MOB-03: Manajemen Distribusi & Proof-of-Delivery (SPPG)
-Dirancang secara ergonomis untuk menyesuaikan mobilitas kurir logistik.
-* **Alur Penyerahan**: Daftar sekolah tujuan ditampilkan dalam format daftar yang dapat digulir. Saat proses pengantaran tiba, kurir dapat memilih sekolah yang bersangkutan untuk memunculkan menu interaktif (*Bottom Sheet Dialog*) di layar bagian bawah.
-* **Pembaruan Status Cepat**: Kurir dapat memperbarui status (*Siap Diantar* atau *Sudah Diantar*) sekaligus mengambil gambar serah terima fisik secara langsung, yang kemudian memicu pembaruan status *real-time* ke sistem *backend* pusat.
+Antarmuka yang dirancang dengan tata letak ergonomis untuk mempermudah operasional kurir logistik di lapangan.
+* **Alur Distribusi**: Daftar institusi sekolah tujuan disajikan dalam bentuk daftar gulir. Saat kurir tiba di lokasi, kurir dapat memilih instansi sekolah yang dituju untuk menampilkan dialog interaktif di bagian bawah layar (*Bottom Sheet Dialog*).
+* **Pembaruan Status Pengiriman**: Kurir dapat memperbarui status (seperti 'Siap Diantar' or 'Sudah Diantar') dan mengambil foto bukti penyerahan barang secara langsung. Aksi ini secara otomatis memperbarui status pada basis data pusat.
 
 ![Placeholder Distribusi SPPG](https://placehold.co/800x400/F8F7F5/2E7D32?text=Layar+Jadwal+%26+Status+Distribusi+SPPG)
 
 ### 4.4 MOB-04: Moderasi Cepat oleh Guru
-Antarmuka pemantauan *real-time* yang memuat ulasan harian siswa, khusus untuk dikelola oleh guru pada sekolah yang bersangkutan.
-* **Penandaan Cepat (*Flagging*)**: Apabila terdeteksi ulasan yang tidak pantas, melanggar etika, atau memuat gambar yang tidak relevan, guru dapat segera mengetuk tombol penanda untuk mengisolasi ulasan tersebut agar tidak memengaruhi statistik evaluasi secara keseluruhan.
+Halaman pemantauan secara langsung bagi guru untuk mengawasi ulasan harian yang dikirimkan oleh siswa di lingkungan sekolah mereka.
+* **Fitur Moderasi Instan (*Flagging*)**: Jika terdapat ulasan yang tidak layak, melanggar norma kesopanan, atau mengunggah gambar yang tidak relevan, guru dapat langsung menandai (*flag*) ulasan tersebut. Tindakan ini akan menyembunyikan ulasan dari publik dan mengeluarkannya dari perhitungan agregat penilaian.
 
 ![Placeholder Moderasi Guru](https://placehold.co/800x400/F8F7F5/2E7D32?text=Layar+Umpan+Feed+Moderasi+Guru)
 
 ### 4.5 MOB-05: Tindak Lanjut Ulasan Kritis (SPPG)
-Modul penanganan situasi kritis khusus bagi pengelola Dapur (SPPG) yang sangat krusial untuk menjaga transparansi dan kualitas respons program MBG.
-* **Notifikasi Asinkron**: Modul *Firebase Cloud Messaging* berjalan di latar belakang untuk segera memberikan peringatan apabila sistem mendeteksi adanya ulasan yang memicu kata kunci kritis terkait kualitas makanan.
-* **Siklus Pemecahan Masalah**: Layar ini mewajibkan pihak SPPG untuk meninjau krisis, merubah fase penanganan ke *Proses Tindak Lanjut*, melampirkan catatan investigasi atau solusi, hingga akhirnya menetapkan status penyelesaian menjadi *Selesai*.
+Modul penanganan kendala kualitas pangan yang ditujukan bagi pengelola dapur SPPG guna mempercepat tindakan korektif dan menjaga akuntabilitas program.
+* **Pemberitahuan Latar Belakang (Push Notification)**: Mengintegrasikan layanan *Firebase Cloud Messaging* untuk mendeteksi ulasan bermakna kritis (seperti keluhan rasa, bau, atau kontaminasi) dan mengirimkan notifikasi instan kepada pengelola dapur secara asinkron.
+* **Siklus Resolusi Masalah**: Antarmuka ini mengarahkan pihak SPPG untuk segera memeriksa keluhan, mengubah tahapan laporan menjadi status 'Proses Tindak Lanjut', mendokumentasikan tindakan perbaikan, hingga menyelesaikan status laporan menjadi 'Selesai'.
 
 ![Placeholder Tindak Lanjut Kritis](https://placehold.co/800x400/F8F7F5/2E7D32?text=Layar+Ruang+Kritis+Ulasan+SPPG)
 
@@ -161,8 +161,8 @@ Modul penanganan situasi kritis khusus bagi pengelola Dapur (SPPG) yang sangat k
 ## BAB V: PENUTUP
 
 ### 5.1 Kesimpulan
-Proses perekayasaan platform Klien Android `HaloMBG-mobile` sukses beroperasi seiring dan sejalan dengan struktur masif *backend* Laravel tanpa harus menderita kelebihan kapasitas fitur (*feature creep*). Keputusan fundamental yang radikal memilah fungsionalitas—memindahkan formulasi gizi makro serta master relasi database seutuhnya ke zona Web Desktop—telah berhasil mendedikasikan aplikasi Mobile ini murni untuk kebutuhan utilitas garda depan: Integrasi kamera *native*, peringatan notifikasi kilat, portabilitas kurir distribusi, moderasi santai, serta transparansi tanpa batas bagi segenap relawan akar rumput program gizi ini. Aplikasi seluler menjadi pelengkap gerak gesit program MBG.
+Pengembangan platform Android `HaloMBG-mobile` berhasil diimplementasikan secara selaras dengan sistem backend Laravel tanpa menimbulkan kendala penumpukan fitur (*feature creep*). Keputusan strategis untuk memisahkan fungsionalitas—dengan menempatkan kalkulasi nutrisi makro dan pengelolaan master relasi database sepenuhnya pada platform web desktop—membuat aplikasi seluler dapat terfokus sepenuhnya pada kebutuhan operasional garda terdepan. Hal ini mencakup integrasi kamera perangkat, pengiriman notifikasi dorong secara cepat, efisiensi kerja kurir distribusi, serta respons moderasi oleh guru guna menunjang kelancaran program Makan Bergizi Gratis.
 
 ### 5.2 Saran Pengembangan Mendatang
-* **Mode Akses Offline (Sinkronisasi Antrean):** Sangat dianjurkan kelak menanamkan basis data `Room` *local caching*, mengingat tidak seluruh unit sarana sekolah berada di wilayah cakupan frekuensi seluler stabil. Data ulasan/bukti serah terima dapat tersimpan di laci memori HP, untuk otomatis ditembakkan serentak bila Kurir kembali menjangkau spot bersinyal (misal terintegrasi API `WorkManager`).
-* **Enkripsi Geotagging:** Melampirkan cap lokasi valid (*GPS latitude/longitude*) saat pemotretan foto bekal/serah-terima (*Proof of Delivery*) agar membasmi modus kecurangan manipulasi foto di tempat yang jauh dari koordinat fasilitas sekolah. 
+* **Mekanisme Penyimpanan Lokal & Sinkronisasi Offline**: Disarankan untuk mengintegrasikan basis data lokal `Room` guna mengantisipasi keterbatasan konektivitas internet di beberapa lokasi sekolah. Data ulasan dan bukti serah terima dapat tersimpan sementara pada penyimpanan lokal perangkat, dan secara otomatis disinkronkan ke server saat perangkat kembali mendeteksi sinyal internet yang stabil (misalnya dengan memanfaatkan pustaka `WorkManager`).
+* **Verifikasi Lokasi (Geotagging)**: Menyertakan koordinat lokasi geografis (*GPS latitude & longitude*) pada metadata foto ulasan atau bukti serah terima (*Proof of Delivery*) untuk menjamin validitas pengiriman dan mencegah manipulasi data lokasi. 
