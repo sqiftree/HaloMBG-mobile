@@ -28,16 +28,24 @@ class GuruModerasiViewModel(application: Application) : AndroidViewModel(applica
     var successMessage by mutableStateOf<String?>(null)
 
     val isSimulationMode = authRepository.isSimulationMode()
-    private val teacherSchoolId = 1L // SD Negeri 1 Jaya (Mock)
+    private val teacherSchoolId = authRepository.getSchoolId()
 
     fun loadReviews() {
+        if (teacherSchoolId == -1L && !isSimulationMode) {
+            errorMessage = "Data sekolah tidak ditemukan. Silakan login ulang."
+            isLoading = false
+            return
+        }
+
         errorMessage = null
         isLoading = true
 
         viewModelScope.launch {
             if (isSimulationMode) {
+                // In simulation, we use a fixed ID if not set
+                val schoolId = if (teacherSchoolId == -1L) 1L else teacherSchoolId
                 reviewsList.clear()
-                reviewsList.addAll(MockData.getReviewsForSchool(teacherSchoolId))
+                reviewsList.addAll(MockData.getReviewsForSchool(schoolId))
                 isLoading = false
             } else {
                 try {
@@ -97,9 +105,6 @@ class GuruModerasiViewModel(application: Application) : AndroidViewModel(applica
                 try {
                     val response = apiService.flagReview(review.id)
                     if (response.isSuccessful && response.body() != null) {
-                        val reviewDto = response.body()!!.review
-                        val newFlag = reviewDto?.photo ?: if (review.flagStatus == "flagged") "none" else "flagged" // Wait, actually the API returns the review
-                        
                         // Toggle local list
                         val listIndex = reviewsList.indexOfFirst { it.id == review.id }
                         if (listIndex != -1) {

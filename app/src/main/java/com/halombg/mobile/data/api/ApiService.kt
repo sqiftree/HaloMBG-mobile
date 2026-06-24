@@ -144,6 +144,9 @@ interface ApiService {
     @GET("siswa/sppg-info")
     suspend fun getSiswaSppgInfo(): Response<ProfileDto>
 
+    @GET("siswa/reviews")
+    suspend fun getSiswaReviews(): Response<List<ReviewDto>>
+
     @POST("siswa/reviews")
     suspend fun postSiswaReview(
         @Body request: ReviewRequest

@@ -82,6 +82,18 @@ class AuthRepository(context: Context) {
         sharedPreferences.edit().remove("school_id").apply()
     }
 
+    fun saveSchoolName(name: String) {
+        sharedPreferences.edit().putString("school_name", name).apply()
+    }
+
+    fun getSchoolName(): String? {
+        return sharedPreferences.getString("school_name", null)
+    }
+
+    fun clearSchoolName() {
+        sharedPreferences.edit().remove("school_name").apply()
+    }
+
     fun saveSimulationMode(enabled: Boolean) {
         sharedPreferences.edit().putBoolean("simulation_mode", enabled).apply()
     }

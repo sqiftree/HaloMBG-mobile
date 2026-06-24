@@ -108,11 +108,9 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                         authRepository.saveUserEmail(user.email)
                         authRepository.saveUserName(user.name)
                         
-                        // Save school ID if user is Siswa or Guru
-                        if (mappedRole == "Siswa" || mappedRole == "Guru") {
-                            // In real app, this would come from API. For now mock based on role or data
-                            authRepository.saveSchoolId(1L) 
-                        }
+                        // Save school details from API
+                        user.schoolId?.let { authRepository.saveSchoolId(it) }
+                        user.school?.name?.let { authRepository.saveSchoolName(it) }
                         
                         authRepository.saveSimulationMode(false)
 
