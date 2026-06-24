@@ -14,14 +14,14 @@ data class GoogleLoginRequest(
 )
 
 data class LoginResponse(
-    val status: String,
-    val message: String,
-    val token: String?,
+    val status: String?,
+    val message: String?,
+    @SerializedName("access_token") val token: String?,
     val user: UserDto?
 )
 
 data class UserDto(
-    val id: Long,
+    @SerializedName("id") val id: String?,
     val name: String,
     val email: String,
     val role: String,
